@@ -22,6 +22,7 @@ def system_init():
     #   Initialise Jobs.
     for job in gl.jobs_all.jobs:
         gl.queue_waiting.job_list.push(job)
+    gl.queue_waiting.sort_by_submit_time()
 
     #   Initialise queues.
     queue_num = int(input("Please input number of queues."))
@@ -33,6 +34,11 @@ def system_init():
     for i in range(queue_num):
         queue_name = "Queue_Pending" + str(i + 1)
         queue = PendQueue(queue_name)
+        min_core_num = int(input("Please input minimum core number for queue " + queue_name))
+        max_core_num = int(input("Please input maximum core number for queue " + queue_name))
+        queue.set_core_num(min_core_num, max_core_num)
+        priority = int(input("Please input priority for queue " + queue_name))
+        queue.set_priority(priority)
         gl.queues_pending.append(queue)
 
     return

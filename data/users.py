@@ -22,6 +22,7 @@ class User(object):
 
 
 class UserList(object):
+
     def __init__(self):
         self.users = []
         return
@@ -41,6 +42,16 @@ class UserList(object):
         return
     #   End Pop
 #   End UserList
+
+
+class Group(object):
+
+    def __init__(self, name):
+        self.name = name
+        self.user_list = UserList()
+        return
+    #   End __init__
+#   End Group
 
 
 class UserListError(Exception):
