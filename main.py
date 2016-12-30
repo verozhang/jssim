@@ -6,7 +6,8 @@ from biz.input import *
 from biz.run import *
 from biz.inquiry import *
 
-input_file("input")
-system_init()
-simulate()
-inquiry()
+if __name__ == '__main__':
+    input_file("input")
+    system_init()
+    simulate()
+    inquiry()

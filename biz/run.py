@@ -4,7 +4,9 @@ from data.cores import *
 
 
 def simulate():
-    while gl.current_time != gl.finish_time:
+    while (gl.queue_waiting.try_has_job() or
+           gl.queue_arrived.try_has_job() or
+           gl.queue_running.try_has_job()):
         gl.current_time += 1
         #   Handle finish
         while (gl.queue_running.try_has_job() and
@@ -41,6 +43,9 @@ def simulate():
                 else:
                     handle_run(queue.get_head(), queue, gl.current_time)
                     gl.queue_running.sort_by_finish_time()
+
+    gl.finish_time = gl.current_time
+    print("Finish time:", gl.finish_time)
     return
 
 

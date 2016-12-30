@@ -59,9 +59,9 @@ class PendQueue(Queue):
         return
     #   End __init__
 
-    def set_core_num(self, min, max):
-        self.min_core_num = min
-        self.max_core_num = max
+    def set_core_num(self, minimum, maximum):
+        self.min_core_num = minimum
+        self.max_core_num = maximum
         return
     #   End set_core_num
 
@@ -71,7 +71,7 @@ class PendQueue(Queue):
     #   End set_priority
 
     def try_suitable(self, job):
-        if job.num_processors >= self.min_core_num and job.num_processors <= self.max_core_num:
+        if self.min_core_num <= job.num_processors <= self.max_core_num:
             return True
         else:
             return False
