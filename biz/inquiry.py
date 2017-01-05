@@ -11,26 +11,25 @@ def inquiry():
             event.output()
 
     menu_help = ("\n"
-                 "h - This menu.\n"
-                 "s - Status and settings of current system.\n"
-                 "r - Status of current simulation.\n"
-                 "j - Status of jobs.\n"
-                 "c - Status of cores.\n"
-                 "u - Status of users.\n"
-                 "a - About.\n"
-                 "q - Quit program.\n")
+                 "H - This menu.\n"
+                 "S - Status and settings of current system.\n"
+                 "R - Status of current simulation.\n"
+                 "J - Status of jobs.\n"
+                 "C - Status of cores.\n"
+                 "U - Status of users.\n"
+                 "A - About.\n"
+                 "Q - Quit program.\n")
 
     while True:
         command = input("Please input command.\n")
-        #   Print help list.
+        # Print help list.
         if command == 'h' or command == 'H':
             print(menu_help)
 
-        # Print system status.
+        # Print system status: Node & core num and queue settings.
         elif command == 's' or command == 'S':
-            print("System node number:", gl.node_num, "Core number for each node:", gl.core_num)
-            print("Start time:", gl.start_time)
-            print("Finish time:", gl.finish_time)
+            print("System node number:", gl.node_num)
+            print("Core number of each node:", gl.core_num)
             print("Queue settings:")
             print("Queue number:", gl.queue_num)
             for queue in gl.queues_pending:
@@ -38,8 +37,10 @@ def inquiry():
                 print("Priority:", queue.priority)
                 print("Available core num:", queue.min_core_num, "to", queue.max_core_num)
 
-        # Print running status.
+        # Print running status: time and job count.
         elif command == 'r' or command == 'R':
+            print("Start time:", gl.start_time)
+            print("Finish time:", gl.finish_time)
             print("Finished jobs:", gl.queue_finished.get_length())
             print("Running jobs:", gl.queue_running.get_length())
             print("Abandoned jobs:", gl.queue_abandoned.get_length())
@@ -82,7 +83,7 @@ def inquiry():
         # Print ABOUT info.
         elif command == 'a' or command == 'A':
             print("Super-Computing Simulator Ver.", gl.VERSION)
-            print("Author: Yi-Chi Vero Zhang@SCC-USTC.")
+            print("Author: Yi-Chi \"Vero\" Zhang@SCC-USTC.")
             print("Mailto: vero at mail dot ustc dot edu dot cn")
             print("Supervisor: Dr. Yu Shen@SCC-USTC.")
             print("Mailto: shenyu at ustc dot edu dot cn")

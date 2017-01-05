@@ -1,4 +1,5 @@
 from data.jobs import JobList
+from enum import Enum
 
 
 class Queue(object):
@@ -56,6 +57,7 @@ class PendQueue(Queue):
         self.min_core_num = 0
         self.max_core_num = float("inf")
         self.priority = 50
+        self.user_job_num = {}
         return
     #   End __init__
 
@@ -76,6 +78,41 @@ class PendQueue(Queue):
         else:
             return False
 #   End PendQueue
+
+
+class QueueEventType(Enum):
+    Load = 0
+    Unload = 1
+#   End QueueEventType
+
+
+class QueueEvent(object):
+
+    def __init__(self, queue, job, time):
+        self.queue = queue
+        self.job = job
+        self.time = time
+        return
+    #   End __init__
+#   End QueueEvent
+
+
+class QueueEventLoad(QueueEvent):
+
+    def output(self):
+        print("Queue", self.queue, "loads job", self.job, "on", self.time)
+        return
+    #   End output
+#   End QueueEventLoad
+
+
+class QueueEventUnload(QueueEvent):
+
+    def output(self):
+        print("Queue", self.queue, "unloads job", self.job, "on", self.time)
+        return
+    #   End output
+#   End QueueEventUnload
 
 
 class QueueError(Exception):

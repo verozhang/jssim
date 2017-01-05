@@ -8,7 +8,9 @@ class JobStatus(Enum):
     PENDING = 2     # On queue, waiting for resources.
     RUNNING = 3     # Running.
     FINISHED = 4    # Finished running and released its resources.
+
     ABANDONED = -1  # Cannot be started due to finish time.
+    REQUEUE = -2    # Requeue due to:1. User has too many jobs pending; 2.Queue has too many jobs running.
 #   End JobStatus
 
 
@@ -33,6 +35,7 @@ class Job(object):
         self.real_wait_time = 0           # Time this job is on queue waiting for resources.
         self.num_processors = num_processors
         self.status = JobStatus.WAITING
+        self.queue_from = None
         self.core_list = CoreList()
         self.events = []
         return
@@ -110,6 +113,7 @@ class JobEventType(Enum):
     PEND = 1        # Job reaches start time, put on queue and starts asking for resources.
     RUN = 2         # Job starts running.
     FINISH = 3      # Job finishes running.
+
     ABANDON = -1    # Job is abandoned.
 #   End JobEventType
 
@@ -167,7 +171,7 @@ class JobEventRun(JobEvent):
     #   End __init__
 
     def output(self):
-        print("Job", self.job.job_id, "started running on core")
+        print("Job", self.job.job_id, "start running on core")
         for core in self.core_list.cores:
             print(core.node_name, core.core_name)
         print("on", self.time)

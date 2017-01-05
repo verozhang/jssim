@@ -36,6 +36,7 @@ def system_init():
     #   Semi-auto queue settings: set interval points of core numbers.
     if queue_mode == '1':
         min_core_num = 1
+        max_core_num = 1
         for i in range(queue_num):
             queue_name = "Queue_Pending" + str(i + 1)
             queue = PendQueue(queue_name)

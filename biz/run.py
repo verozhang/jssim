@@ -1,4 +1,5 @@
 import gl
+from data.queues import *
 from data.jobs import *
 from data.cores import *
 
@@ -41,7 +42,7 @@ def simulate():
                 if queue.get_head().stop_time < gl.current_time + queue.get_head().run_time:
                     handle_abandon(queue.get_head(), queue, gl.current_time)
                 else:
-                    handle_run(queue.get_head(), queue, gl.current_time)
+                    handle_run(queue.get_head(), gl.current_time)
                     gl.queue_running.sort_by_finish_time()
 
     gl.finish_time = gl.current_time
@@ -56,39 +57,71 @@ def handle_arrive(job, time):
 
     event = JobEventArrive(job, time)
     job.events.append(event)
+    event.output()
     return
 #   End handle_arrive
 
 
 def handle_pend(job, queue, time):
     job.status = JobStatus.PENDING
+    job.queue_from = queue
+
+    if job.user not in job.queue_from.user_job_num:
+        job.queue_from.user_job_num[job.user] = 1
+    else:
+        job.queue_from.user_job_num[job.user] += 1
+
     queue.load(job)
     gl.queue_arrived.unload(job)
 
-    event = JobEventPend(job, queue, time)
-    job.events.append(event)
+    job_event = JobEventPend(job, queue, time)
+    job.events.append(job_event)
+    job_event.output()
+    queue_event = QueueEventLoad(queue, job, time)
+    queue.events.append(queue_event)
     return
 #   End handle_pend
 
 
-def handle_run(job, queue, time):
+def handle_run(job, time):
     run(job, time)
-    gl.queue_running.load(job)
-    queue.unload(job)
 
-    event = JobEventRun(job, time)
-    job.events.append(event)
+    if job.queue_from not in gl.queue_job_num:
+        gl.queue_job_num[job.queue_from] = 1
+    else:
+        gl.queue_job_num[job.queue_from] += 1
+
+    if job.queue_from not in gl.queue_core_num:
+        gl.queue_core_num[job.queue_from] = job.num_processors
+    else:
+        gl.queue_core_num[job.queue_from] += job.num_processors
+
+    job.queue_from.user_job_num[job.user] -= 1
+
+    gl.queue_running.load(job)
+    job.queue_from.unload(job)
+
+    job_event = JobEventRun(job, time)
+    job.events.append(job_event)
+    job_event.output()
+    queue_event = QueueEventUnload(job.queue_from, job, time)
+    job.queue_from.events.append(queue_event)
     return
 #   End handle_run
 
 
 def handle_finish(job, time):
     stop(job, time)
+
+    gl.queue_job_num[job.queue_from] -= 1
+    gl.queue_core_num[job.queue_from] -= job.num_processors
+
     gl.queue_finished.load(job)
     gl.queue_running.unload(job)
 
     event = JobEventFinish(job, time)
     job.events.append(event)
+    event.output()
     return
 #   End handle_finish
 

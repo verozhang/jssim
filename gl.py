@@ -3,7 +3,7 @@ from data.jobs import JobList
 from data.users import UserList
 from data.queues import Queue
 
-VERSION = "1.0.8"
+VERSION = "1.1.14"
 
 node_num = 1
 core_num = 1
@@ -27,3 +27,6 @@ queue_abandoned = Queue("Queue_abandoned")
 
 queue_num = 1
 queues_pending = []
+
+queue_job_num = {}  # Dict for job number each queue has submitted.
+queue_core_num = {} # Dict for core number each queue is using.
