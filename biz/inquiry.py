@@ -77,9 +77,6 @@ def inquiry():
             else:
                 print("User", user_ask, "not found.")
 
-        elif command == 't' or command == 'T':
-            pass
-
         # Print ABOUT info.
         elif command == 'a' or command == 'A':
             print("Super-Computing Simulator Ver.", gl.VERSION)

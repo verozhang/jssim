@@ -27,8 +27,13 @@ def simulate():
             gl.queues_pending.sort(key=lambda x: x.priority, reverse=True)
             for queue in gl.queues_pending:
                 if queue.try_suitable(gl.queue_arrived.get_head()):
-                    handle_pend(gl.queue_arrived.get_head(), queue, gl.current_time)
+                    if ((gl.queue_arrived.get_head().user not in queue.user_job_num) or
+                       queue.user_job_num[gl.queue_arrived.get_head().user] < queue.user_length):
+                        handle_pend(gl.queue_arrived.get_head(), queue, gl.current_time)
+                    else:
+                        requeue(gl.queue_arrived.get_head(), 60)
                     break
+
                 else:
                     continue
             else:
@@ -39,8 +44,10 @@ def simulate():
             while (queue.try_has_job() and
                    queue.get_head().try_run and
                    len(gl.cores_vacant.cores) >= queue.get_head().num_processors):
+                #   Cannot finish. Abandon current job.
                 if queue.get_head().stop_time < gl.current_time + queue.get_head().run_time:
                     handle_abandon(queue.get_head(), queue, gl.current_time)
+                #   Can finish.
                 else:
                     handle_run(queue.get_head(), gl.current_time)
                     gl.queue_running.sort_by_finish_time()
@@ -52,6 +59,8 @@ def simulate():
 
 def handle_arrive(job, time):
     job.status = JobStatus.ARRIVED
+    job.queue_from = gl.queue_arrived
+
     gl.queue_arrived.load(job)
     gl.queue_waiting.unload(job)
 
@@ -173,8 +182,11 @@ def stop(job, time):
 #   End stop
 
 
-def requeue(queue, time_diff):
-    queue.get_head().start_time += time_diff
-    queue.sort_by_start_time()
+def requeue(job, time_diff):
+    job.start_time += time_diff
+    job.queue_from.sort_by_start_time()
+
+    event = JobEventRequeue(job, gl.current_time, time_diff)
+    job.events.append(event)
     return
 #   End requeue

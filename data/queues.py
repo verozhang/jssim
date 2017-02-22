@@ -57,7 +57,11 @@ class PendQueue(Queue):
         self.min_core_num = 0
         self.max_core_num = float("inf")
         self.priority = 50
-        self.user_job_num = {}
+        self.length = float("inf")          # Number of jobs a queue can have.
+        self.user_length = float("inf")     # Number of jobs a user can have pending on this queue.
+        self.queue_job_num = float("inf")   # Number of jobs a queue can have running.
+        self.queue_core_num = float("inf")  # Number of cores a queue can use to run jobs.
+        self.user_job_num = {}              # Job number of each user has put on this queue {user: job number}
         return
     #   End __init__
 
@@ -71,6 +75,26 @@ class PendQueue(Queue):
         self.priority = priority
         return
     #   End set_priority
+
+    def set_length(self, length):
+        self.length = length
+        return
+    #   End set_length
+
+    def set_user_length(self, user_length):
+        self.user_length = user_length
+        return
+    #   End set_user_length
+
+    def set_queue_job_num(self, queue_job_num):
+        self.queue_job_num = queue_job_num
+        return
+    #   End set_queue_job_num
+
+    def set_queue_core_num(self, queue_core_num):
+        self.queue_core_num = queue_core_num
+        return
+    #   End set_queue_core_num
 
     def try_suitable(self, job):
         if self.min_core_num <= job.num_processors <= self.max_core_num:

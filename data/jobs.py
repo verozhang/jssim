@@ -10,7 +10,6 @@ class JobStatus(Enum):
     FINISHED = 4    # Finished running and released its resources.
 
     ABANDONED = -1  # Cannot be started due to finish time.
-    REQUEUE = -2    # Requeue due to:1. User has too many jobs pending; 2.Queue has too many jobs running.
 #   End JobStatus
 
 
@@ -115,6 +114,7 @@ class JobEventType(Enum):
     FINISH = 3      # Job finishes running.
 
     ABANDON = -1    # Job is abandoned.
+    REQUEUE = -2    # Job cannot be added to queue and is requeued.
 #   End JobEventType
 
 
@@ -209,6 +209,22 @@ class JobEventAbandon(JobEvent):
         return
     #   End output
 #   End JobEventAbandon
+
+
+class JobEventRequeue(JobEvent):
+
+    def __init__(self, job, time, time_diff):
+        super().__init__(job, time)
+        self.time_diff = time_diff
+        self.type = JobEventType.REQUEUE
+        return
+    #   End __init__
+
+    def output(self):
+        print("Job", self.job.job_id, "is requeued on", self.time, "for", self.time_diff, "seconds")
+        return
+    #   End output
+#   End JobEventRequeue
 
 
 class JobError(Exception):
