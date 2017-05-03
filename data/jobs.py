@@ -1,4 +1,5 @@
 from data.cores import CoreList
+from data.resourcepool import *
 from enum import Enum
 
 
@@ -17,13 +18,13 @@ class Job(object):
 
     def __init__(self, job_id, user, submit_time, start_time, stop_time, run_time, num_processors):
         self.job_id = job_id
-        self.user = user        # Need further rewriting here.
+        self.user = user
         self.submit_time = submit_time   # Time this job reaches server
         if start_time == 0:              # Time user allows this job to start. 0 means run when arrive.
             self.start_time = submit_time
         else:
             self.start_time = start_time
-        if stop_time == 0:          # Time this job become useless. Stop even it is not finished. 0 means do not stop.
+        if stop_time == 0:            # Time this job become useless. Stop even it is not finished. 0 means do not stop.
             self.stop_time = float("inf")
         else:
             self.stop_time = stop_time

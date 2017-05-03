@@ -3,7 +3,7 @@ from data.jobs import JobList
 from data.users import UserList
 from data.queues import Queue
 
-VERSION = "1.1.62"
+VERSION = "1.2"
 
 node_num = 1
 core_num = 1

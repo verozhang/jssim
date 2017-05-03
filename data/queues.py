@@ -3,7 +3,6 @@ from enum import Enum
 
 
 class Queue(object):
-
     def __init__(self, name):
         self.name = name
         self.job_list = JobList()
@@ -50,6 +49,11 @@ class Queue(object):
 #   End Queue
 
 
+class QueueBackFillStatus(Enum):
+    NoBackFill = 0
+    BackFill = 1
+
+
 class PendQueue(Queue):
 
     def __init__(self, name):
@@ -57,11 +61,31 @@ class PendQueue(Queue):
         self.min_core_num = 0
         self.max_core_num = float("inf")
         self.priority = 50
-        self.length = float("inf")          # Number of jobs a queue can have.
-        self.user_length = float("inf")     # Number of jobs a user can have pending on this queue.
-        self.queue_job_num = float("inf")   # Number of jobs a queue can have running.
-        self.queue_core_num = float("inf")  # Number of cores a queue can use to run jobs.
-        self.user_job_num = {}              # Job number of each user has put on this queue {user: job number}
+
+        self.job_num_pending = 0                    # Num of jobs pending through this queue.
+        self.job_num_pending_limit = float("inf")     # Num of jobs a queue can have pending.
+        self.core_num_pending = 0                   # Num of cores asking for.
+        self.core_num_pending_limit = float("inf")    # Num of cores a queue can have asking for.
+
+        self.user_job_num_pending = {}
+        self.user_job_num_pending_limit = {}  # Num of jobs a user can have pending on this queue.
+        self.user_core_num_pending = {}
+        self.user_core_num_pending_limit = {}
+
+        self.job_num_running = 0                    # Num of jobs running through this queue.
+        self.job_num_running_limit = float("inf")
+        self.core_num_running = 0
+        self.core_num_running_limit = float("inf")
+        self.cputime_running = 0
+        self.cputime_running_limit = float("inf")
+
+        self.user_job_num_running = {}
+        self.user_job_num_running_limit = {}
+        self.user_core_num_running = {}
+        self.user_core_num_running_limit = {}
+        self.user_cputime_running = {}
+        self.user_cputime_running_limit = {}
+
         return
     #   End __init__
 
@@ -75,26 +99,6 @@ class PendQueue(Queue):
         self.priority = priority
         return
     #   End set_priority
-
-    def set_length(self, length):
-        self.length = length
-        return
-    #   End set_length
-
-    def set_user_length(self, user_length):
-        self.user_length = user_length
-        return
-    #   End set_user_length
-
-    def set_queue_job_num(self, queue_job_num):
-        self.queue_job_num = queue_job_num
-        return
-    #   End set_queue_job_num
-
-    def set_queue_core_num(self, queue_core_num):
-        self.queue_core_num = queue_core_num
-        return
-    #   End set_queue_core_num
 
     def try_suitable(self, job):
         if self.min_core_num <= job.num_processors <= self.max_core_num:

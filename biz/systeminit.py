@@ -34,6 +34,8 @@ def system_init():
         queue_num = int(input("Please input number of queues."))
 
     #   Semi-auto queue settings: set interval points of core numbers.
+    #   All jobs will be sent to queues according to cores needed.
+    #   Higher priority for queues of larger jobs.
     if queue_mode == '1':
         min_core_num = 1
         max_core_num = 1
@@ -46,7 +48,6 @@ def system_init():
             else:
                 queue.set_core_num(min_core_num, node_num * core_num)
             queue.set_priority(queue_num - i)
-            queue.set_user_length(3)
             gl.queues_pending.append(queue)
             min_core_num = max_core_num + 1
 

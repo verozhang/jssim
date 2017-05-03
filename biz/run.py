@@ -28,7 +28,7 @@ def simulate():
             for queue in gl.queues_pending:
                 if queue.try_suitable(gl.queue_arrived.get_head()):
                     if ((gl.queue_arrived.get_head().user not in queue.user_job_num) or
-                       queue.user_job_num[gl.queue_arrived.get_head().user] < queue.user_length):
+                       queue.user_job_num[gl.queue_arrived.get_head().user] < queue.user_job_num_limit):
                         handle_pend(gl.queue_arrived.get_head(), queue, gl.current_time)
                     else:
                         requeue(gl.queue_arrived.get_head(), 60)
@@ -49,8 +49,12 @@ def simulate():
                     handle_abandon(queue.get_head(), queue, gl.current_time)
                 #   Can finish.
                 else:
-                    handle_run(queue.get_head(), gl.current_time)
-                    gl.queue_running.sort_by_finish_time()
+                    if ((queue not in gl.queue_job_num) or
+                       (gl.queue_job_num[queue] < queue.queue_job_num)):
+                        handle_run(queue.get_head(), gl.current_time)
+                        gl.queue_running.sort_by_finish_time()
+                    else:
+                        requeue(queue.get_head, 60)
 
     gl.finish_time = gl.current_time
     print("Finish time:", gl.finish_time)
@@ -80,6 +84,11 @@ def handle_pend(job, queue, time):
     else:
         job.queue_from.user_job_num[job.user] += 1
 
+    if job.user not in job.queue_from.user_core_num:
+        job.queue_from.user_core_num[job.user] = job.num_processors
+    else:
+        job.queue_from.user_core_num[job.user] += job.num_processors
+
     queue.load(job)
     gl.queue_arrived.unload(job)
 
@@ -106,6 +115,7 @@ def handle_run(job, time):
         gl.queue_core_num[job.queue_from] += job.num_processors
 
     job.queue_from.user_job_num[job.user] -= 1
+    job.queue_from.user_core_num[job.user] -= job.num_processors
 
     gl.queue_running.load(job)
     job.queue_from.unload(job)

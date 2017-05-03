@@ -1,3 +1,4 @@
+
 from data.jobs import Job, JobDuplicateIDError
 from data.users import User
 import gl

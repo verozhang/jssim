@@ -6,7 +6,20 @@ class User(object):
     def __init__(self, user_id):
         self.user_id = user_id
         self.job_list = JobList()
-        self.job_num = 3
+
+        self.job_num_pending = 0
+        self.job_num_pending_limit = float("inf")
+        self.job_num_running = 0
+        self.job_num_running_limit = float("inf")
+
+        self.core_num_pending = 0
+        self.core_num_pending_limit = float("inf")
+        self.core_num_running = 0
+        self.core_num_running_limit = float("inf")
+
+        self.cputime = 0
+        self.cputime_limit = float("inf")
+
         self.events = []
         return
     #   End __init__
@@ -64,3 +77,10 @@ class UserListEmptyPopError(UserListError):
 
 class UserListIllegalPopError(UserListError):
     pass
+
+
+class UserGroup(object):
+
+    def __init__(self, group_id):
+        self.group_id = group_id
+        self.user_list = UserList()
