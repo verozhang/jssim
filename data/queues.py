@@ -68,9 +68,9 @@ class PendQueue(Queue):
         self.core_num_pending_limit = float("inf")    # Num of cores a queue can have asking for.
 
         self.user_job_num_pending = {}
-        self.user_job_num_pending_limit = {}  # Num of jobs a user can have pending on this queue.
+        self.user_job_num_pending_limit = float("inf")  # Num of jobs a user can have pending on this queue.
         self.user_core_num_pending = {}
-        self.user_core_num_pending_limit = {}
+        self.user_core_num_pending_limit = float("inf")
 
         self.job_num_running = 0                    # Num of jobs running through this queue.
         self.job_num_running_limit = float("inf")
@@ -80,11 +80,11 @@ class PendQueue(Queue):
         self.cputime_running_limit = float("inf")
 
         self.user_job_num_running = {}
-        self.user_job_num_running_limit = {}
+        self.user_job_num_running_limit = float("inf")
         self.user_core_num_running = {}
-        self.user_core_num_running_limit = {}
+        self.user_core_num_running_limit = float("inf")
         self.user_cputime_running = {}
-        self.user_cputime_running_limit = {}
+        self.user_cputime_running_limit = float("inf")
 
         return
     #   End __init__
@@ -105,6 +105,48 @@ class PendQueue(Queue):
             return True
         else:
             return False
+    #   End try_suitable
+
+    def try_pending_limit(self, job):
+        if self.job_num_pending + 1 <= self.job_num_pending_limit:
+            if self.core_num_pending + job.num_processors <= self.core_num_pending_limit:
+                return True
+            else:
+                return False
+        else:
+            return False
+    #   End try_pending_limit
+
+    def try_running_limit(self, job):
+        if self.job_num_running + 1 <= self.job_num_running_limit:
+            if self.core_num_pending + job.num_processors <= self.core_num_running_limit:
+                return True
+            else:
+                return False
+        else:
+            return False
+    #   End try_running_limit
+
+    def try_user_pending_limit(self, job):
+        #   User not in lists.
+        if (job.user not in self.user_job_num_pending) and (job not in self.user_core_num_pending):
+            return True
+        #   User in one list but not another, must be a bug.
+        elif (job.user in self.user_job_num_pending) != (job.user in self.user_core_num_pending):
+            raise Exception
+        #   User in both lists.
+        elif self.user_job_num_pending[job.user] + 1 <= self.user_job_num_pending_limit:
+            if self.user_core_num_pending[job.user] + job.num_processors <= self.user_core_num_pending_limit:
+                return True
+            else:
+                return False
+        else:
+            return False
+        #   End try_user_pending_limit
+
+    def try_user_running_limit(self, job):
+        pass
+
 #   End PendQueue
 
 

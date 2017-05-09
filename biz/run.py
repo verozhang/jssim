@@ -27,8 +27,8 @@ def simulate():
             gl.queues_pending.sort(key=lambda x: x.priority, reverse=True)
             for queue in gl.queues_pending:
                 if queue.try_suitable(gl.queue_arrived.get_head()):
-                    if ((gl.queue_arrived.get_head().user not in queue.user_job_num) or
-                       queue.user_job_num[gl.queue_arrived.get_head().user] < queue.user_job_num_limit):
+                    if ((gl.queue_arrived.get_head().user not in queue.user_job_num_pending) or
+                       queue.user_job_num_pending[gl.queue_arrived.get_head().user] < queue.user_job_num_pending_limit):
                         handle_pend(gl.queue_arrived.get_head(), queue, gl.current_time)
                     else:
                         requeue(gl.queue_arrived.get_head(), 60)
@@ -79,15 +79,18 @@ def handle_pend(job, queue, time):
     job.status = JobStatus.PENDING
     job.queue_from = queue
 
-    if job.user not in job.queue_from.user_job_num:
-        job.queue_from.user_job_num[job.user] = 1
-    else:
-        job.queue_from.user_job_num[job.user] += 1
+    job.queue_from.job_num_pending += 1
+    job.queue_from.core_num_pending += job.num_processors
 
-    if job.user not in job.queue_from.user_core_num:
-        job.queue_from.user_core_num[job.user] = job.num_processors
+    if job.user not in job.queue_from.user_job_num_pending:
+        job.queue_from.user_job_num_pending[job.user] = 1
     else:
-        job.queue_from.user_core_num[job.user] += job.num_processors
+        job.queue_from.user_job_num_pending[job.user] += 1
+
+    if job.user not in job.queue_from.user_core_num_pending:
+        job.queue_from.user_core_num_pending[job.user] = job.num_processors
+    else:
+        job.queue_from.user_core_num_pending[job.user] += job.num_processors
 
     queue.load(job)
     gl.queue_arrived.unload(job)
@@ -104,18 +107,10 @@ def handle_pend(job, queue, time):
 def handle_run(job, time):
     run(job, time)
 
-    if job.queue_from not in gl.queue_job_num:
-        gl.queue_job_num[job.queue_from] = 1
-    else:
-        gl.queue_job_num[job.queue_from] += 1
-
-    if job.queue_from not in gl.queue_core_num:
-        gl.queue_core_num[job.queue_from] = job.num_processors
-    else:
-        gl.queue_core_num[job.queue_from] += job.num_processors
-
-    job.queue_from.user_job_num[job.user] -= 1
-    job.queue_from.user_core_num[job.user] -= job.num_processors
+    job.queue_from.job_num_running += 1
+    job.queue_from.job_num_pending -= 1
+    job.queue_from.core_num_running += job.num_processors
+    job.queue_from.core_num_pending -= job.num_processors
 
     gl.queue_running.load(job)
     job.queue_from.unload(job)
@@ -132,8 +127,8 @@ def handle_run(job, time):
 def handle_finish(job, time):
     stop(job, time)
 
-    gl.queue_job_num[job.queue_from] -= 1
-    gl.queue_core_num[job.queue_from] -= job.num_processors
+    job.queue_from.job_num_running -= 1
+    job.queue_from.core_num_running -= job.num_processors
 
     gl.queue_finished.load(job)
     gl.queue_running.unload(job)
@@ -146,6 +141,9 @@ def handle_finish(job, time):
 
 
 def handle_abandon(job, queue, time):
+    job.queue_from.job_num_pending -= 1
+    job.queue_from.core_num_pending -= job.num_processors
+
     job.status = JobStatus.ABANDONED
     gl.queue_abandoned.load(job)
     queue.unload(job)

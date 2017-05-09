@@ -27,6 +27,3 @@ queue_abandoned = Queue("Queue_Abandoned")
 
 queue_num = 1
 queues_pending = []
-
-queue_job_num = {}      # Dict for job number each queue has submitted.
-queue_core_num = {}     # Dict for core number each queue is using.
