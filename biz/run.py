@@ -27,8 +27,8 @@ def simulate():
             gl.queues_pending.sort(key=lambda x: x.priority, reverse=True)
             for queue in gl.queues_pending:
                 if queue.try_suitable(gl.queue_arrived.get_head()):
-                    if ((gl.queue_arrived.get_head().user not in queue.user_job_num_pending) or
-                       queue.user_job_num_pending[gl.queue_arrived.get_head().user] < queue.user_job_num_pending_limit):
+                    if queue.try_pending_limit(gl.queue_arrived.get_head()) and \
+                            queue.try_user_pending_limit(gl.queue_arrived.get_head()):
                         handle_pend(gl.queue_arrived.get_head(), queue, gl.current_time)
                     else:
                         requeue(gl.queue_arrived.get_head(), 60)
@@ -46,11 +46,11 @@ def simulate():
                    len(gl.cores_vacant.cores) >= queue.get_head().num_processors):
                 #   Cannot finish. Abandon current job.
                 if queue.get_head().stop_time < gl.current_time + queue.get_head().run_time:
-                    handle_abandon(queue.get_head(), queue, gl.current_time)
+                    handle_abandon(queue.get_head(), gl.current_time)
                 #   Can finish.
                 else:
-                    if ((queue not in gl.queue_job_num) or
-                       (gl.queue_job_num[queue] < queue.queue_job_num)):
+                    if queue.try_running_limit(queue.get_head()) and \
+                            queue.try_user_running_limit(queue.get_head()):
                         handle_run(queue.get_head(), gl.current_time)
                         gl.queue_running.sort_by_finish_time()
                     else:
@@ -140,15 +140,15 @@ def handle_finish(job, time):
 #   End handle_finish
 
 
-def handle_abandon(job, queue, time):
+def handle_abandon(job, time):
     job.queue_from.job_num_pending -= 1
     job.queue_from.core_num_pending -= job.num_processors
 
     job.status = JobStatus.ABANDONED
     gl.queue_abandoned.load(job)
-    queue.unload(job)
+    job.queue_from.unload(job)
 
-    event = JobEventAbandon(job, queue, time)
+    event = JobEventAbandon(job, job.queue_from, time)
     job.events.append(event)
     return
 #   End handle_abandon

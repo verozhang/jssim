@@ -57,16 +57,6 @@ class UserList(object):
 #   End UserList
 
 
-class Group(object):
-
-    def __init__(self, name):
-        self.name = name
-        self.user_list = UserList()
-        return
-    #   End __init__
-#   End Group
-
-
 class UserListError(Exception):
     pass
 
@@ -84,3 +74,6 @@ class UserGroup(object):
     def __init__(self, group_id):
         self.group_id = group_id
         self.user_list = UserList()
+        return
+    #   End __init__
+#   End UserGroup

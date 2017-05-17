@@ -18,7 +18,7 @@ def inquiry():
                  "C - Status of cores.\n"
                  "U - Status of users.\n"
                  "A - About.\n"
-                 "Q - Quit program.\n")
+                 "X - EXit program.\n")
 
     while True:
         command = input("Please input command.\n")
@@ -86,7 +86,7 @@ def inquiry():
             print("Mailto: shenyu at ustc dot edu dot cn")
 
         # Quit program.
-        elif command == 'q' or command == 'Q':
+        elif command == 'x' or command == 'X':
             break
 
         # Wrong input handle.

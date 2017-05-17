@@ -44,20 +44,39 @@ class NodeEventType(Enum):
 #   End NodeEventType
 
 
-class NodeGroup(object):
-
-    def __init__(self, group_name):
-        self.group_name = group_name
-        self.nodes = []
-        return
-    #   End __init__
-#   End NodeGroup
-
-
 class ResourcePool(object):
 
     def __init__(self):
-        pass
+        self.node_list = []
+        self.cores_available = 0
+        self.priority = 0
+        return
+    #   End __init__
+
+    def count_cores(self):
+        for node in self.node_list:
+            self.cores_available += node.core_num
+        return
+    #   End count_cores
+
+    def node_list_append(self, node):
+        if node in self.node_list:
+            raise Exception
+        else:
+            self.node_list.append(node)
+            self.cores_available += node.core_num
+        return
+    #   End node_list_append
+
+    def node_list_remove(self, node):
+        if node not in self.node_list:
+            raise Exception
+        else:
+            self.node_list.remove(node)
+            self.cores_available -= node.core_num
+        return
+    #   End node_list_remove
+#   End ResourcePool
 
 
 class ResourceEventType(Enum):
