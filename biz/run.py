@@ -43,14 +43,14 @@ def simulate():
         for queue in gl.queues_pending:
             while (queue.try_has_job() and
                    queue.get_head().try_run and
-                   len(gl.cores_vacant.cores) >= queue.get_head().num_processors):
+                   queue.get_resource() >= queue.get_head().num_processors):
                 #   Cannot finish. Abandon current job.
                 if queue.get_head().stop_time < gl.current_time + queue.get_head().run_time:
                     handle_abandon(queue.get_head(), gl.current_time)
                 #   Can finish.
                 else:
-                    if queue.try_running_limit(queue.get_head()) and \
-                            queue.try_user_running_limit(queue.get_head()):
+                    if (queue.try_running_limit(queue.get_head()) and
+                            queue.try_user_running_limit(queue.get_head())):
                         handle_run(queue.get_head(), gl.current_time)
                         gl.queue_running.sort_by_finish_time()
                     else:
@@ -158,12 +158,19 @@ def run(job, time):
     if job.status != JobStatus.PENDING:
         raise JobIllegalRunError
 
-    for i in range(job.num_processors):
-        core_event = CoreEventOccupy(gl.cores_vacant.get_head(), job, time)
-        gl.cores_vacant.get_head().events.append(core_event)
-        gl.cores_vacant.get_head().occupy(job)
-        job.core_list.push(gl.cores_vacant.get_head())
-        gl.cores_vacant.pop(gl.cores_vacant.get_head())
+    core_needed = job.num_processors
+
+    while core_needed > 0:
+        for resource_pool in job.queue_from.resource_pools:
+            for node in resource_pool.node_list:
+                if node.core_vacant > 0:
+                    if core_needed <= node.core_vacant:
+                        current_core_num = core_needed
+                    else:
+                        current_core_num = node.core_vacant
+                    core_needed -= current_core_num
+                    node.occupy(job, current_core_num)
+                    job.resource_usage[node] = current_core_num
 
     job.real_start_time = time
     job.real_wait_time = time - job.start_time
@@ -176,12 +183,9 @@ def stop(job, time):
     if job.status != JobStatus.RUNNING:
         raise JobIllegalStopError
 
-    for i in range(job.num_processors):
-        core_event = CoreEventRelease(job.core_list.get_head(), time)
-        job.core_list.get_head().events.append(core_event)
-        job.core_list.get_head().release()
-        gl.cores_vacant.push(job.core_list.get_head())
-        job.core_list.pop(job.core_list.get_head())
+    for node in job.resource_usage:
+        node.release(job)
+        node.cputime_sum += job.num_processors * job.run_time
 
     job.real_end_time = time
     job.real_run_time = time - job.real_start_time

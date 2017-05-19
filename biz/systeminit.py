@@ -2,6 +2,7 @@ from data.cores import *
 from data.queues import *
 from data.jobs import *
 from data.users import *
+from data.resourcepool import *
 import gl
 
 
@@ -61,6 +62,12 @@ def init_resource():
             gl.cores_all.push(core)
             gl.cores_vacant.push(core)
 
+    for node_name in range(node_num):
+        node = Node(node_name, gl.core_num)
+        gl.resource_all.node_list_append(node)
+
+    gl.resource_all.count_cores()
+
 
 def init_queue():
     #   Init pend queues.
@@ -91,6 +98,7 @@ def init_queue():
                 queue.set_core_num(min_core_num, gl.node_num * gl.core_num)
             queue.set_priority(queue_num - i)
             gl.queues_pending.append(queue)
+            queue.resource_pools.append(gl.resource_all)
             min_core_num = max_core_num + 1
 
     #   Manual mode: all settings input by keyboard.

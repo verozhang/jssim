@@ -6,35 +6,28 @@ class Node(object):
     def __init__(self, node_name, core_num):
         self.node_name = node_name
         self.core_num = core_num
-        self.core_used = 0
+        self.core_vacant = core_num
         self.status = {}
+        self.cputime_sum = 0
         self.events = []
         return
     #   End __init__
 
     def occupy(self, job, core_usage):
-        if not self.status[job]:
+        if job not in self.status:
             self.status[job] = core_usage
         else:
             self.status[job] += core_usage
 
-        self.core_used += core_usage
+        self.core_vacant -= core_usage
         return
     #   End occupy
 
     def release(self, job):
-        self.core_used -= self.status[job]
+        self.core_vacant += self.status[job]
         del (self.status[job])
         return
     #   End release
-
-    def try_occupy(self, job, core_usage):
-        if self.core_num - self.core_used < core_usage:
-            return False
-        if job in self.status[job]:
-            return False
-        return True
-    #   End try_occupy
 #   End Node
 
 
@@ -77,6 +70,24 @@ class ResourcePool(object):
         return
     #   End node_list_remove
 #   End ResourcePool
+
+
+class ResourceGroup(object):
+
+    def __init__(self):
+        self.resource_list = []
+        self.cores_available = 0
+        self.priority = 0
+        return
+    #   End __init__
+
+    def count_cores(self):
+        for resource in self.resource_list:
+            self.cores_available += resource.count_cores()
+        return
+    #   End count_cores
+
+#   End ResourceGroup
 
 
 class ResourceEventType(Enum):

@@ -2,6 +2,7 @@ from data.cores import CoreList
 from data.jobs import JobList
 from data.users import UserList
 from data.queues import Queue
+from data.resourcepool import *
 
 VERSION = "1.2"
 
@@ -27,3 +28,5 @@ queue_abandoned = Queue("Queue_Abandoned")
 
 queue_num = 1
 queues_pending = []
+
+resource_all = ResourcePool()

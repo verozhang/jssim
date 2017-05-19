@@ -37,6 +37,7 @@ class Job(object):
         self.status = JobStatus.WAITING
         self.queue_from = None
         self.core_list = CoreList()
+        self.resource_usage = {}
         self.events = []
         return
     #   End __init__
