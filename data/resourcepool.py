@@ -41,14 +41,17 @@ class ResourcePool(object):
 
     def __init__(self):
         self.node_list = []
+        self.cores_all = 0
         self.cores_available = 0
         self.priority = 0
+        self.events = []
         return
     #   End __init__
 
     def count_cores(self):
         for node in self.node_list:
-            self.cores_available += node.core_num
+            self.cores_all += node.core_num
+        self.cores_available = self.cores_all
         return
     #   End count_cores
 
@@ -57,7 +60,7 @@ class ResourcePool(object):
             raise Exception
         else:
             self.node_list.append(node)
-            self.cores_available += node.core_num
+            self.cores_all += node.core_num
         return
     #   End node_list_append
 
@@ -66,7 +69,7 @@ class ResourcePool(object):
             raise Exception
         else:
             self.node_list.remove(node)
-            self.cores_available -= node.core_num
+            self.cores_all -= node.core_num
         return
     #   End node_list_remove
 #   End ResourcePool
@@ -76,17 +79,38 @@ class ResourceGroup(object):
 
     def __init__(self):
         self.resource_list = []
+        self.cores_all = 0
         self.cores_available = 0
-        self.priority = 0
+        self.events = []
         return
     #   End __init__
 
     def count_cores(self):
         for resource in self.resource_list:
-            self.cores_available += resource.count_cores()
+            self.cores_all += resource.count_cores()
+        self.cores_available = self.cores_all
         return
     #   End count_cores
 
+    def resource_list_append(self, resource):
+        if resource in self.resource_list:
+            raise Exception
+        else:
+            self.resource_list.append(resource)
+            self.cores_all += resource.cores_all
+            self.cores_available += resource.cores_all
+        return
+    #   End resource_list_append
+
+    def resource_list_remove(self, resource):
+        if resource not in self.resource_list:
+            raise Exception
+        else:
+            self.resource_list.remove(resource)
+            self.cores_all -= resource.cores_all
+            self.cores_available -= resource.cores_available
+        return
+    #   End resource_list_remove
 #   End ResourceGroup
 
 

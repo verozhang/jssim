@@ -161,7 +161,7 @@ def run(job, time):
     core_needed = job.num_processors
 
     while core_needed > 0:
-        for resource_pool in job.queue_from.resource_pools:
+        for resource_pool in job.queue_from.resource_pools.resource_list:
             for node in resource_pool.node_list:
                 if node.core_vacant > 0:
                     if core_needed <= node.core_vacant:

@@ -1,4 +1,5 @@
 from data.jobs import JobList
+from data.resourcepool import ResourceGroup
 from enum import Enum
 
 
@@ -61,7 +62,7 @@ class PendQueue(Queue):
         self.min_core_num = 0
         self.max_core_num = float("inf")
         self.priority = 50
-        self.resource_pools = []
+        self.resource_pools = ResourceGroup()
 
         self.job_num_pending = 0                    # Num of jobs pending through this queue.
         self.job_num_pending_limit = float("inf")     # Num of jobs a queue can have pending.
@@ -94,8 +95,8 @@ class PendQueue(Queue):
         if resource in self.resource_pools:
             raise Exception
         else:
-            self.resource_pools.append(resource)
-            self.resource_pools.sort(key=lambda x: x.priority, reverse=True)
+            self.resource_pools.resource_list.append(resource)
+            self.resource_pools.resource_list.sort(key=lambda x: x.priority, reverse=True)
             return
     #   End resource_pool_append
 
@@ -103,9 +104,13 @@ class PendQueue(Queue):
         if resource not in self.resource_pools:
             raise Exception
         else:
-            self.resource_pools.remove(resource)
+            self.resource_pools.resource_list.remove(resource)
             return
     #   End resource_pool_remove
+
+    def get_resource(self):
+        return self.resource_pools.cores_available
+    #   End get)resource
 
     def set_core_num(self, minimum, maximum):
         self.min_core_num = minimum

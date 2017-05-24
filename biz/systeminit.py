@@ -98,7 +98,7 @@ def init_queue():
                 queue.set_core_num(min_core_num, gl.node_num * gl.core_num)
             queue.set_priority(queue_num - i)
             gl.queues_pending.append(queue)
-            queue.resource_pools.append(gl.resource_all)
+            queue.resource_pools.resource_list.append(gl.resource_all)
             min_core_num = max_core_num + 1
 
     #   Manual mode: all settings input by keyboard.
