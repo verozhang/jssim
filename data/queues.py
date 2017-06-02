@@ -109,7 +109,7 @@ class PendQueue(Queue):
     #   End resource_pool_remove
 
     def get_resource(self):
-        return self.resource_pools.cores_available
+        return max(lambda x: self.resource_pools.cores_available)
     #   End get)resource
 
     def set_core_num(self, minimum, maximum):

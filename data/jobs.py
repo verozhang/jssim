@@ -35,9 +35,11 @@ class Job(object):
         self.real_wait_time = 0           # Time this job is on queue waiting for resources.
         self.num_processors = num_processors
         self.status = JobStatus.WAITING
+
         self.queue_from = None
-        self.core_list = CoreList()
-        self.resource_usage = {}
+        self.node_usage = {}
+        self.resource_pool_usage = None
+
         self.events = []
         return
     #   End __init__
@@ -165,17 +167,15 @@ class JobEventRun(JobEvent):
 
     def __init__(self, job, time):
         super().__init__(job, time)
-        self.core_list = CoreList()
-        for core in job.core_list.cores:
-            self.core_list.push(core)
+        self.node_usage = job.node_usage
         self.type = JobEventType.RUN
         return
     #   End __init__
 
     def output(self):
-        print("Job", self.job.job_id, "start running on core")
-        for core in self.core_list.cores:
-            print(core.node_name, core.core_name)
+        print("Job", self.job.job_id, "start running on node")
+        for node in self.node_usage:
+            print(node.node_name, ":", self.node_usage[node])
         print("on", self.time)
         return
     #   End output

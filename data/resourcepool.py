@@ -20,6 +20,7 @@ class Node(object):
             self.status[job] += core_usage
 
         self.core_vacant -= core_usage
+        self.cputime_sum += core_usage * job.run_time
         return
     #   End occupy
 
@@ -43,6 +44,7 @@ class ResourcePool(object):
         self.node_list = []
         self.cores_all = 0
         self.cores_available = 0
+        self.status = {}
         self.priority = 0
         self.events = []
         return
@@ -72,6 +74,22 @@ class ResourcePool(object):
             self.cores_all -= node.core_num
         return
     #   End node_list_remove
+
+    def occupy(self, job, core_usage):
+        if job not in self.status:
+            self.status[job] = core_usage
+        else:
+            self.status[job] += core_usage
+
+        self.cores_available -= core_usage
+        return
+    #   End occupy
+
+    def release(self, job):
+        self.cores_available += self.status[job]
+        del (self.status[job ])
+        return
+    #   End release
 #   End ResourcePool
 
 
