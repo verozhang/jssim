@@ -6,8 +6,8 @@ from data.resourcepool import *
 
 VERSION = "1.2"
 
-node_num = 1
-core_num = 1
+total_node_num = 1
+total_core_num = 1
 
 start_time = 0
 finish_time = float("inf")

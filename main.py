@@ -24,7 +24,6 @@ if __name__ == '__main__':
         if command == 'J' or command == 'j':
             init_job("input")
             job_flag = True
-            print("Job properties successfully imported from file.")
 
         if command == 'R' or command == 'r':
             init_resource()

@@ -28,8 +28,8 @@ def inquiry():
 
         # Print system status: Node & core num and queue settings.
         elif command == 's' or command == 'S':
-            print("System node number:", gl.node_num)
-            print("Core number of each node:", gl.core_num)
+            print("System node number:", gl.total_node_num)
+            print("Core number of each node:", gl.total_core_num)
             print("Queue settings:")
             print("Queue number:", gl.queue_num)
             for queue in gl.queues_pending:

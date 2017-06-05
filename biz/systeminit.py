@@ -7,7 +7,6 @@ import gl
 
 
 def init_job(file_name):
-    #   Now can only read from text. Can add reading .XLS later.
     #   Read from file.
     in_file = open(file_name, 'r')
     #   Read each line.
@@ -45,46 +44,67 @@ def init_job(file_name):
         gl.queue_waiting.job_list.push(job)
     gl.queue_waiting.sort_by_submit_time()
 
+    print("Job properties successfully imported from file.")
     return
-#   End input
+#   End init_job
 
 
 def init_resource():
     #   Init cores.
     node_num = int(input("Please input node number."))
     core_num = int(input("Please input core number."))
-    gl.node_num = node_num
-    gl.core_num = core_num
+    gl.total_node_num = node_num
+    gl.total_core_num = core_num * node_num
 
     for node_name in range(node_num):
-        for core_name in range(core_num):
-            core = Core(node_name, core_name)
-            gl.cores_all.push(core)
-            gl.cores_vacant.push(core)
-
-    for node_name in range(node_num):
-        node = Node(node_name, gl.core_num)
+        node = Node(node_name, gl.total_core_num)
         gl.resource_all.node_list_append(node)
 
     gl.resource_all.count_cores()
 
+    return
+#   End init_resource
+
 
 def init_queue():
     #   Init pend queues.
-    queue_mode = input("Please select queue mode, 1 for semi-auto, 2 for manual.")
-    while queue_mode != '1' and queue_mode != '2':
-        print("Input error, please input again.")
-        queue_mode = input("Please select queue mode, 1 for semi-auto, 2 for manual.")
+    while True:
+        queue_mode = input("Please select queue mode."
+                           "1 for single-queue mode,"
+                           "2 for semi-auto queue generating,"
+                           "3 for manual queue generating.")
+        while queue_mode != '1' and queue_mode != '2' and queue_mode != '3':
+            print("Input error, please retry.")
 
+        #   Single queue mode:
+        #   Only 1 queue. All jobs will be pushed to this queue.
+        #   All resources will be used only by this queue.
+        if queue_mode == '1':
+            queue_name = "Queue_Pending1"
+            queue = PendQueue(queue_name)
+            queue.set_core_num(1, gl.total_core_num)
+            gl.queues_pending.append(queue)
+            queue.resource_pools.resource_list_append(gl.resource_all)
+            break
+
+        #   Semi-auto mode:
+        #   Set interval points of core numbers.
+        #   All jobs will be sent to queues according to cores needed.
+        #   Higher priority for queues of larger jobs.
+        elif queue_mode == '2':
+            pass
+
+
+
+
+'''
     queue_num = int(input("Please input number of queues."))
     gl.queue_num = queue_num
     while queue_num <= 0:
         print("Queue number must be positive integer, please input again")
         queue_num = int(input("Please input number of queues."))
 
-    #   Semi-auto queue settings: set interval points of core numbers.
-    #   All jobs will be sent to queues according to cores needed.
-    #   Higher priority for queues of larger jobs.
+    #   Semi-auto queue settings:
     if queue_mode == '1':
         min_core_num = 1
         max_core_num = 1
@@ -95,7 +115,7 @@ def init_queue():
                 max_core_num = int(input("Please input maximum core number for queue " + queue_name))
                 queue.set_core_num(min_core_num, max_core_num)
             else:
-                queue.set_core_num(min_core_num, gl.node_num * gl.core_num)
+                queue.set_core_num(min_core_num, gl.total_node_num * gl.total_core_num)
             queue.set_priority(queue_num - i)
             gl.queues_pending.append(queue)
             queue.resource_pools.resource_list.append(gl.resource_all)
@@ -112,5 +132,6 @@ def init_queue():
             priority = int(input("Please input priority for queue " + queue_name))
             queue.set_priority(priority)
             gl.queues_pending.append(queue)
-
+'''
     return
+#   End init_queue
