@@ -1,7 +1,6 @@
 import gl
 from data.queues import *
 from data.jobs import *
-from data.cores import *
 
 
 def simulate():
@@ -53,7 +52,7 @@ def simulate():
                             queue.try_user_running_limit(queue.get_head())):
                         for resource in queue.resource_pools.resource_list:
                             if resource.cores_available >= queue.get_head().num_processors:
-                                handle_run(queue.get_head(), gl.current_time)
+                                handle_run(queue.get_head(), gl.current_time, resource)
                                 gl.queue_running.sort_by_finish_time()
                                 break
                         else:
@@ -107,8 +106,8 @@ def handle_pend(job, queue, time):
 #   End handle_pend
 
 
-def handle_run(job, time):
-    run(job, time)
+def handle_run(job, time, resource):
+    run(job, time, resource)
 
     job.queue_from.job_num_running += 1
     job.queue_from.job_num_pending -= 1
@@ -118,7 +117,7 @@ def handle_run(job, time):
     gl.queue_running.load(job)
     job.queue_from.unload(job)
 
-    job_event = JobEventRun(job, time)
+    job_event = JobEventRun(job, time, resource)
     job.events.append(job_event)
     job_event.output()
     queue_event = QueueEventUnload(job.queue_from, job, time)
@@ -157,25 +156,24 @@ def handle_abandon(job, time):
 #   End handle_abandon
 
 
-def run(job, time):
+def run(job, time, resource):
     if job.status != JobStatus.PENDING:
         raise JobIllegalRunError
 
     core_needed = job.num_processors
 
     while core_needed > 0:
-        for resource_pool in job.queue_from.resource_pools.resource_list:
-            for node in resource_pool.node_list:
-                if node.core_vacant > 0:
-                    if core_needed <= node.core_vacant:
-                        current_core_num = core_needed
-                    else:
-                        current_core_num = node.core_vacant
-                    core_needed -= current_core_num
-                    node.occupy(job, current_core_num)
-                    job.node_usage[node] = current_core_num
+        for node in resource.node_list:
+            if node.core_vacant > 0:
+                if core_needed <= node.core_vacant:
+                    current_core_num = core_needed
+                else:
+                    current_core_num = node.core_vacant
+                core_needed -= current_core_num
+                node.occupy(job, current_core_num)
+                job.node_usage[node] = current_core_num
 
-    job.resource_pool_usage = resource_pool
+    job.resource_pool_usage = resource
     job.real_start_time = time
     job.real_wait_time = time - job.start_time
     job.status = JobStatus.RUNNING

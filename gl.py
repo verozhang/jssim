@@ -1,4 +1,3 @@
-from data.cores import CoreList
 from data.jobs import JobList
 from data.users import UserList
 from data.queues import Queue
@@ -7,6 +6,7 @@ from data.resourcepool import *
 VERSION = "1.2"
 
 total_node_num = 1
+each_core_num = 1
 total_core_num = 1
 
 start_time = 0
@@ -16,9 +16,6 @@ current_time = start_time
 users_all = UserList()
 
 jobs_all = JobList()
-
-cores_all = CoreList()
-cores_vacant = CoreList()
 
 queue_waiting = Queue("Queue_Waiting")
 queue_arrived = Queue("Queue_Arrived")

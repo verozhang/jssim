@@ -1,4 +1,3 @@
-from data.cores import *
 from data.queues import *
 from data.jobs import *
 from data.users import *
@@ -54,10 +53,11 @@ def init_resource():
     node_num = int(input("Please input node number."))
     core_num = int(input("Please input core number."))
     gl.total_node_num = node_num
+    gl.each_core_num = core_num
     gl.total_core_num = core_num * node_num
 
     for node_name in range(node_num):
-        node = Node(node_name, gl.total_core_num)
+        node = Node(node_name, gl.each_core_num)
         gl.resource_all.node_list_append(node)
 
     gl.resource_all.count_cores()
@@ -69,12 +69,13 @@ def init_resource():
 def init_queue():
     #   Init pend queues.
     while True:
-        queue_mode = input("Please select queue mode."
-                           "1 for single-queue mode,"
-                           "2 for semi-auto queue generating,"
-                           "3 for manual queue generating.")
+        queue_mode = input("Please select queue mode.\n"
+                           "1 for single-queue mode,\n"
+                           "2 for semi-auto queue generating,\n"
+                           "3 for manual queue generating.\n")
         while queue_mode != '1' and queue_mode != '2' and queue_mode != '3':
             print("Input error, please retry.")
+            break
 
         #   Single queue mode:
         #   Only 1 queue. All jobs will be pushed to this queue.
@@ -92,46 +93,51 @@ def init_queue():
         #   All jobs will be sent to queues according to cores needed.
         #   Higher priority for queues of larger jobs.
         elif queue_mode == '2':
-            pass
+            current_min_core_num = 1
+            while True:
+                queue_num = int(input("Please input queue number."))
+                if queue_num > 1:
+                    break
+                else:
+                    print("Queue num must be more than 1, please retry.")
 
+            for i in range(queue_num):
+                queue_name = "Queue_Pending" + str(i + 1)
+                queue = PendQueue(queue_name)
 
+                if i != queue_num - 1:
+                    #   Not the last queue, max core num input by user.
+                    current_max_core_num = int(input("Please input maximum core num for queue " + queue_name))
+                else:
+                    #   Last queue, max core num is total core num.
+                    current_max_core_num = gl.total_core_num
+                queue.set_core_num(current_min_core_num, current_max_core_num)
 
+                queue.set_priority(queue_num - i)
+                gl.queues_pending.append(queue)
+                queue.resource_pools.resource_list_append(gl.resource_all)
+                current_min_core_num = current_max_core_num + 1
 
-'''
-    queue_num = int(input("Please input number of queues."))
-    gl.queue_num = queue_num
-    while queue_num <= 0:
-        print("Queue number must be positive integer, please input again")
-        queue_num = int(input("Please input number of queues."))
+            break
 
-    #   Semi-auto queue settings:
-    if queue_mode == '1':
-        min_core_num = 1
-        max_core_num = 1
-        for i in range(queue_num):
-            queue_name = "Queue_Pending" + str(i + 1)
-            queue = PendQueue(queue_name)
-            if i != (queue_num - 1):
-                max_core_num = int(input("Please input maximum core number for queue " + queue_name))
-                queue.set_core_num(min_core_num, max_core_num)
-            else:
-                queue.set_core_num(min_core_num, gl.total_node_num * gl.total_core_num)
-            queue.set_priority(queue_num - i)
-            gl.queues_pending.append(queue)
-            queue.resource_pools.resource_list.append(gl.resource_all)
-            min_core_num = max_core_num + 1
+        elif queue_mode == '3':
+            while True:
+                queue_num = int(input("Please input queue number."))
+                if queue_num > 1:
+                    break
+                else:
+                    print("Queue num must be more than 1, please retry.")
 
-    #   Manual mode: all settings input by keyboard.
-    elif queue_mode == '2':
-        for i in range(queue_num):
-            queue_name = "Queue_Pending" + str(i + 1)
-            queue = PendQueue(queue_name)
-            min_core_num = int(input("Please input minimum core number for queue " + queue_name))
-            max_core_num = int(input("Please input maximum core number for queue " + queue_name))
-            queue.set_core_num(min_core_num, max_core_num)
-            priority = int(input("Please input priority for queue " + queue_name))
-            queue.set_priority(priority)
-            gl.queues_pending.append(queue)
-'''
+            for i in range(queue_num):
+                queue_name = "Queue_Pending" + str(i + 1)
+                queue = PendQueue(queue_name)
+
+                queue.min_core_num = int(input("Please input min core num for queue" + queue_name))
+                queue.max_core_num = int(input("Please input max core num for queue" + queue_name))
+                queue.priority = int(input("Please input priority for queue" + queue_name))
+
+                gl.queues_pending.append(queue)
+                queue.resource_pools.resource_list_append(gl.resource_all)
+            break
     return
 #   End init_queue

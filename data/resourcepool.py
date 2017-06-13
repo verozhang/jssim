@@ -87,7 +87,7 @@ class ResourcePool(object):
 
     def release(self, job):
         self.cores_available += self.status[job]
-        del (self.status[job ])
+        del (self.status[job])
         return
     #   End release
 #   End ResourcePool

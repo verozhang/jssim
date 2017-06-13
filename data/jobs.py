@@ -1,5 +1,3 @@
-from data.cores import CoreList
-from data.resourcepool import *
 from enum import Enum
 
 
@@ -165,9 +163,10 @@ class JobEventPend(JobEvent):
 
 class JobEventRun(JobEvent):
 
-    def __init__(self, job, time):
+    def __init__(self, job, time, resource):
         super().__init__(job, time)
         self.node_usage = job.node_usage
+        self.resource_pool_usage = resource
         self.type = JobEventType.RUN
         return
     #   End __init__
@@ -176,6 +175,7 @@ class JobEventRun(JobEvent):
         print("Job", self.job.job_id, "start running on node")
         for node in self.node_usage:
             print(node.node_name, ":", self.node_usage[node])
+        print("using resource pool", self.resource_pool_usage)
         print("on", self.time)
         return
     #   End output

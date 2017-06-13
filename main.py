@@ -7,7 +7,7 @@ from biz.inquiry import *
 
 if __name__ == '__main__':
 
-    print("Thank you for using JSSim Ver. 1.2")
+    print("Thank you for using JSSim Ver.", gl.VERSION)
 
     job_flag = False
     resource_flag = False
@@ -25,15 +25,15 @@ if __name__ == '__main__':
             init_job("input")
             job_flag = True
 
-        if command == 'R' or command == 'r':
+        elif command == 'R' or command == 'r':
             init_resource()
             resource_flag = True
 
-        if command == 'Q' or command == 'q':
+        elif command == 'Q' or command == 'q':
             init_queue()
             queue_flag = True
 
-        if command == 'C' or command == 'c':
+        elif command == 'C' or command == 'c':
             if resource_flag and queue_flag:
                 #   Queue settings check module.#
                 print("This is queue settings.")
@@ -41,11 +41,14 @@ if __name__ == '__main__':
                 print("System initialisation needed before checking. "
                       "Please Try again.")
 
-        if command == 'B' or command == 'b':
+        elif command == 'B' or command == 'b':
             if job_flag and resource_flag and queue_flag:
                 break
             else:
                 print("Error occurred. Please check input before starting.")
+
+        else:
+            print("This command does not exist or is under development, please retry.")
 
     simulate()
     inquiry()
