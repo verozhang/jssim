@@ -56,7 +56,9 @@ def simulate():
                                 gl.queue_running.sort_by_finish_time()
                                 break
                         else:
-                            requeue(queue.get_head, 60)
+                            break
+                    else:
+                        requeue(queue.get_head, 60)
 
     gl.finish_time = gl.current_time
     print("Finish time:", gl.finish_time)
@@ -173,6 +175,8 @@ def run(job, time, resource):
                 node.occupy(job, current_core_num)
                 job.node_usage[node] = current_core_num
 
+    resource.occupy(job, job.num_processors)
+
     job.resource_pool_usage = resource
     job.real_start_time = time
     job.real_wait_time = time - job.start_time
@@ -188,6 +192,8 @@ def stop(job, time):
     for node in job.node_usage:
         node.release(job)
         node.cputime_sum += job.num_processors * job.run_time
+
+    job.resource_pool_usage.release(job)
 
     job.real_end_time = time
     job.real_run_time = time - job.real_start_time

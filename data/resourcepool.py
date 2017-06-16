@@ -51,6 +51,7 @@ class ResourcePool(object):
     #   End __init__
 
     def count_cores(self):
+        self.cores_all = 0
         for node in self.node_list:
             self.cores_all += node.core_num
         self.cores_available = self.cores_all

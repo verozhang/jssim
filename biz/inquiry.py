@@ -42,6 +42,17 @@ def inquiry():
             print("Finished jobs:", gl.queue_finished.get_length())
             print("Running jobs:", gl.queue_running.get_length())
             print("Abandoned jobs:", gl.queue_abandoned.get_length())
+            #   New stat section, temporarily put it here, need further development.
+            sum_wait_time = 0
+            for job in gl.queue_finished.job_list:
+                sum_wait_time += job.real_wait_time
+            avg_wait_time = sum_wait_time / gl.queue_finished.get_length()
+            print("Average wait time:", avg_wait_time)
+
+            sum_cpu_time = 0
+            for job in gl.queue_finished.job_list:
+                sum_cpu_time += job.real_run_time * job.num_processors
+            print("Total cpu time:", sum_cpu_time)
 
         # Print job status.
         elif command == 'j' or command == 'J':
