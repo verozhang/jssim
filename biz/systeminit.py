@@ -15,6 +15,7 @@ def init_job(file_name):
         job_id = int(line[0])
         for job in gl.jobs_all.jobs:
             if job.job_id == job_id:
+                print(job_id)
                 raise JobDuplicateIDError
 
         user_id = int(line[1])
@@ -37,6 +38,8 @@ def init_job(file_name):
         job = Job(job_id, current_user, submit_time, start_time, stop_time, run_time, num_processors)
         gl.jobs_all.push(job)
         current_user.job_list.push(job)
+
+    in_file.close()
 
     #   Push all jobs into queue_waiting.
     for job in gl.jobs_all.jobs:

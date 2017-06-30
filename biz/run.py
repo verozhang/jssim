@@ -60,6 +60,8 @@ def simulate():
                     else:
                         requeue(queue.get_head, 60)
 
+        stat()
+
     gl.finish_time = gl.current_time
     print("Finish time:", gl.finish_time)
     return
@@ -210,3 +212,6 @@ def requeue(job, time_diff):
     job.events.append(event)
     return
 #   End requeue
+
+def stat():
+    gl.cpu_occupation_status[gl.current_time] = gl.resource_all.cores_available

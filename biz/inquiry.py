@@ -12,6 +12,7 @@ def inquiry():
                  "S - Status and settings of current system.\n"
                  "Q - Status of queue settings.\n"
                  "R - Status of current simulation.\n"
+                 "E - Evaluation of current simulation.\n"
                  "J - Status of jobs.\n"
                  "U - Status of users.\n"
                  "A - About.\n"
@@ -34,6 +35,7 @@ def inquiry():
                 print("Queue name:", queue.name)
                 print("Priority:", queue.priority)
                 print("Available core num:", queue.min_core_num, "to", queue.max_core_num)
+                print("Tobal job number:", queue.get_length())
 
         # Print running status: time and job count.
         elif command == 'r' or command == 'R':
@@ -42,17 +44,36 @@ def inquiry():
             print("Finished jobs:", gl.queue_finished.get_length())
             print("Running jobs:", gl.queue_running.get_length())
             print("Abandoned jobs:", gl.queue_abandoned.get_length())
-            #   New stat section, temporarily put it here, need further development.
+
+        elif command == 'e' or command == 'E':
+            # CPU time
+            sum_cpu_time = 0
+            for job in gl.queue_finished.job_list.jobs:
+                sum_cpu_time += job.real_run_time * job.num_processors
+            avg_cpu_time = sum_cpu_time / gl.queue_finished.get_length()
+            print("Total cpu time:", sum_cpu_time)
+            print("Average cpu time per job:", avg_cpu_time)
+
+            # Wait time
             sum_wait_time = 0
-            for job in gl.queue_finished.job_list:
+            for job in gl.queue_finished.job_list.jobs:
                 sum_wait_time += job.real_wait_time
             avg_wait_time = sum_wait_time / gl.queue_finished.get_length()
+            print("Total wait time:", sum_wait_time)
             print("Average wait time:", avg_wait_time)
 
-            sum_cpu_time = 0
-            for job in gl.queue_finished.job_list:
-                sum_cpu_time += job.real_run_time * job.num_processors
-            print("Total cpu time:", sum_cpu_time)
+            # Occupation rate
+            is_output = input("Export occupation rate status?\n")
+            if is_output == 'y' or is_output == 'Y':
+                print("Exporting, please wait.\n")
+                out_file = open('output', 'w')
+                for item in gl.cpu_occupation_status:
+                    out_file.write(str(item))
+                    out_file.write(':')
+                    out_file.write(str(gl.cpu_occupation_status[item]))
+                    out_file.write('\n')
+                out_file.close()
+                print("Export successful.\n")
 
         # Print job status.
         elif command == 'j' or command == 'J':

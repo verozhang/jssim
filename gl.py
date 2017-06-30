@@ -27,3 +27,7 @@ queue_num = 1
 queues_pending = []
 
 resource_all = ResourcePool()
+
+# Following stats are used for evaluation
+cpu_occupation_status = {}  # Record occupation status on each time point.
+
