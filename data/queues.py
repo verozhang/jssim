@@ -44,6 +44,10 @@ class Queue(object):
         return self.job_list.get_length()
     #   End get_length
 
+    def get_core_length(self):
+        return self.job_list.get_core_length()
+    #   End get_core_length
+
     def get_head(self):
         return self.job_list.get_head()
     #   End get_head
@@ -61,7 +65,9 @@ class PendQueue(Queue):
         super().__init__(name)
         self.min_core_num = 0
         self.max_core_num = float("inf")
-        self.priority = 50
+        self.min_run_time = 0
+        self.max_run_time = float("inf")
+        self.priority = 0
         self.resource_pools = ResourceGroup()
 
         self.job_num_pending = 0                    # Num of jobs pending through this queue.
@@ -87,6 +93,9 @@ class PendQueue(Queue):
         self.user_core_num_running_limit = float("inf")
         self.user_cputime_running = {}
         self.user_cputime_running_limit = float("inf")
+
+        self.total_job_num = 0
+        self.total_core_num = 0
 
         return
     #   End __init__
@@ -117,6 +126,12 @@ class PendQueue(Queue):
         self.max_core_num = maximum
         return
     #   End set_core_num
+
+    def set_run_time(self, minimum, maximum):
+        self.min_run_time = minimum
+        self.max_run_time = maximum
+        return
+    #   End set_run_time
 
     def set_priority(self, priority):
         self.priority = priority

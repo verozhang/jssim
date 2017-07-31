@@ -103,6 +103,12 @@ class JobList(object):
         return len(self.jobs)
     #   End get_length
 
+    def get_core_length(self):
+        sum = 0
+        for job in self.jobs:
+            sum += job.num_processors
+        return sum
+
     def get_head(self):
         return self.jobs[0]
     #   End get_head

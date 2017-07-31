@@ -32,12 +32,6 @@ class Node(object):
 #   End Node
 
 
-class NodeEventType(Enum):
-    OCCUPY = 0
-    RELEASE = 1
-#   End NodeEventType
-
-
 class ResourcePool(object):
 
     def __init__(self):
@@ -68,7 +62,9 @@ class ResourcePool(object):
     #   End node_list_append
 
     def node_list_remove(self, node):
-        if node not in self.node_list:
+        if not self.node_list:
+            raise Exception
+        elif node not in self.node_list:
             raise Exception
         else:
             self.node_list.remove(node)
@@ -141,8 +137,8 @@ class ResourceEventType(Enum):
 
 class ResourceEvent(object):
 
-    def __init__(self, node, time):
-        self.node = node
+    def __init__(self, resource, time):
+        self.resource = resource
         self.time = time
         return
     #   End __init__
@@ -151,15 +147,15 @@ class ResourceEvent(object):
 
 class ResourceEventOccupy(ResourceEvent):
 
-    def __init__(self, node, time, job):
-        super().__init__(node, time)
+    def __init__(self, resource, time, job):
+        super().__init__(resource, time)
         self.job = job
         self.type = ResourceEventType.OCCUPY
         return
     #   End __init__
 
     def output(self):
-        print("")
+        print("Resource", self.resource, "is occupied by job", self.job.job_id, "on", self.time)
         return
     #   End output
 #   End ResourceEventOccupy
@@ -167,15 +163,15 @@ class ResourceEventOccupy(ResourceEvent):
 
 class ResourceEventRelease(ResourceEvent):
 
-    def __init__(self, node, time, job):
-        super().__init__(node, time)
+    def __init__(self, resource, time, job):
+        super().__init__(resource, time)
         self.job = job
         self.type = ResourceEventType.RELEASE
         return
     #   End __init__
 
     def output(self):
-        print("")
+        print("Resource", self.resource, "is released by job", self.job.job_id, "on", self.time)
         return
     #   End output
 #   End ResourceEventRelease

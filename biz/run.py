@@ -106,6 +106,9 @@ def handle_pend(job, queue, time):
     job_event.output()
     queue_event = QueueEventLoad(queue, job, time)
     queue.events.append(queue_event)
+
+    queue.total_job_num += 1
+    queue.total_core_num += job.num_processors
     return
 #   End handle_pend
 
@@ -166,16 +169,17 @@ def run(job, time, resource):
 
     core_needed = job.num_processors
 
-    while core_needed > 0:
-        for node in resource.node_list:
-            if node.core_vacant > 0:
-                if core_needed <= node.core_vacant:
-                    current_core_num = core_needed
-                else:
-                    current_core_num = node.core_vacant
-                core_needed -= current_core_num
-                node.occupy(job, current_core_num)
-                job.node_usage[node] = current_core_num
+    for node in resource.node_list:
+        if node.core_vacant > 0:
+            if core_needed <= node.core_vacant:
+                current_core_num = core_needed
+            else:
+                current_core_num = node.core_vacant
+            core_needed -= current_core_num
+            node.occupy(job, current_core_num)
+            job.node_usage[node] = current_core_num
+            if core_needed == 0:
+                break
 
     resource.occupy(job, job.num_processors)
 
@@ -213,5 +217,7 @@ def requeue(job, time_diff):
     return
 #   End requeue
 
+
 def stat():
     gl.cpu_occupation_status[gl.current_time] = gl.resource_all.cores_available
+    gl.cpu_occupation_rate[gl.current_time] = gl.resource_all.cores_available / gl.resource_all.cores_all

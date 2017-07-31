@@ -30,4 +30,8 @@ resource_all = ResourcePool()
 
 # Following stats are used for evaluation
 cpu_occupation_status = {}  # Record occupation status on each time point.
+cpu_occupation_rate = {}
 
+sum_cpu_time = 0
+sum_wait_time = 0
+sum_run_time = 0

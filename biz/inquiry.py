@@ -35,7 +35,8 @@ def inquiry():
                 print("Queue name:", queue.name)
                 print("Priority:", queue.priority)
                 print("Available core num:", queue.min_core_num, "to", queue.max_core_num)
-                print("Tobal job number:", queue.get_length())
+                print("Total job number:", queue.total_job_num)
+                print("Total core number:", queue.total_core_num)
 
         # Print running status: time and job count.
         elif command == 'r' or command == 'R':
@@ -65,13 +66,17 @@ def inquiry():
             # Occupation rate
             is_output = input("Export occupation rate status?\n")
             if is_output == 'y' or is_output == 'Y':
+                interval = int(input("Please input sampling interval."))
+                if interval <= 0:
+                    interval = int(input("Wrong input, please try again."))
                 print("Exporting, please wait.\n")
                 out_file = open('output', 'w')
                 for item in gl.cpu_occupation_status:
-                    out_file.write(str(item))
-                    out_file.write(':')
-                    out_file.write(str(gl.cpu_occupation_status[item]))
-                    out_file.write('\n')
+                    if item % interval == 0:
+                        out_file.write(str(item))
+                        out_file.write(':')
+                        out_file.write(str(gl.cpu_occupation_status[item]))
+                        out_file.write('\n')
                 out_file.close()
                 print("Export successful.\n")
 
