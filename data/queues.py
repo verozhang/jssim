@@ -54,19 +54,14 @@ class Queue(object):
 #   End Queue
 
 
-class QueueBackFillStatus(Enum):
-    NoBackFill = 0
-    BackFill = 1
-
-
 class PendQueue(Queue):
 
     def __init__(self, name):
         super().__init__(name)
-        self.min_core_num = 0
-        self.max_core_num = float("inf")
-        self.min_run_time = 0
-        self.max_run_time = float("inf")
+        self.core_num_floor = 0
+        self.core_num_ceiling = float("inf")
+        self.run_time_floor = 0
+        self.run_time_ceiling = float("inf")
         self.priority = 0
         self.resource_pools = ResourceGroup()
 
@@ -96,13 +91,23 @@ class PendQueue(Queue):
 
         self.total_job_num = 0
         self.total_core_num = 0
+        self.total_wait_time = 0
+        self.total_run_time = 0
+        self.total_cpu_time = 0
+        self.max_wait_time = 0
+        self.max_run_time = 0
+        self.max_cpu_time = 0
+        self.max_response_ratio = 0
 
         return
     #   End __init__
 
     def resource_pool_append(self, resource):
         if resource in self.resource_pools:
-            raise Exception
+            print("Resource pool append error: "
+                  "Resource already in pool. "
+                  "Terminating.")
+            raise QueueError
         else:
             self.resource_pools.resource_list.append(resource)
             self.resource_pools.resource_list.sort(key=lambda x: x.priority, reverse=True)
@@ -111,7 +116,10 @@ class PendQueue(Queue):
 
     def resource_pool_remove(self, resource):
         if resource not in self.resource_pools:
-            raise Exception
+            print("Resource pool remove error: "
+                  "Resource not in pool. "
+                  "Terminating.")
+            raise QueueError
         else:
             self.resource_pools.resource_list.remove(resource)
             return
@@ -122,14 +130,14 @@ class PendQueue(Queue):
     #   End get)resource
 
     def set_core_num(self, minimum, maximum):
-        self.min_core_num = minimum
-        self.max_core_num = maximum
+        self.core_num_floor = minimum
+        self.core_num_ceiling = maximum
         return
     #   End set_core_num
 
     def set_run_time(self, minimum, maximum):
-        self.min_run_time = minimum
-        self.max_run_time = maximum
+        self.run_time_floor = minimum
+        self.run_time_ceiling = maximum
         return
     #   End set_run_time
 
@@ -139,7 +147,7 @@ class PendQueue(Queue):
     #   End set_priority
 
     def try_suitable(self, job):
-        if self.min_core_num <= job.num_processors <= self.max_core_num:
+        if self.core_num_floor <= job.num_processors <= self.core_num_ceiling:
             return True
         else:
             return False
@@ -155,22 +163,15 @@ class PendQueue(Queue):
             return False
     #   End try_pending_limit
 
-    def try_running_limit(self, job):
-        if self.job_num_running + 1 <= self.job_num_running_limit:
-            if self.core_num_pending + job.num_processors <= self.core_num_running_limit:
-                return True
-            else:
-                return False
-        else:
-            return False
-    #   End try_running_limit
-
     def try_user_pending_limit(self, job):
         #   User not in lists.
         if (job.user not in self.user_job_num_pending) and (job.user not in self.user_core_num_pending):
             return True
         #   User in one list but not another, must be a bug.
         elif (job.user in self.user_job_num_pending) != (job.user in self.user_core_num_pending):
+            print("Try user pending limit error: "
+                  "User in job num list but not in core num list, or vice versa. "
+                  "Terminating.")
             raise QueueError
         #   User in both lists.
         elif self.user_job_num_pending[job.user] + 1 <= self.user_job_num_pending_limit:
@@ -182,11 +183,24 @@ class PendQueue(Queue):
             return False
     #   End try_user_pending_limit
 
+    def try_running_limit(self, job):
+        if self.job_num_running + 1 <= self.job_num_running_limit:
+            if self.core_num_pending + job.num_processors <= self.core_num_running_limit:
+                return True
+            else:
+                return False
+        else:
+            return False
+    #   End try_running_limit
+
     def try_user_running_limit(self, job):
         #   User not in lists.
         if (job.user not in self.user_job_num_running) and (job.user not in self.user_core_num_running):
             return True
         elif (job.user not in self.user_job_num_running) != (job.user not in self.user_core_num_running):
+            print("Try user running limit error: "
+                  "User in job num list but not in core num list, or vice versa. "
+                  "Terminating.")
             raise QueueError
         elif self.user_job_num_running[job.user] + 1 <= self.user_job_num_running_limit:
             if self.user_core_num_running[job.user] + job.num_processors <= self.user_core_num_running_limit:

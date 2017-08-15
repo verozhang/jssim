@@ -31,6 +31,8 @@ class Job(object):
         self.real_end_time = 0            # Time when this job actually ends.
         self.real_run_time = 0            # Time this job actually cost.
         self.real_wait_time = 0           # Time this job is on queue waiting for resources.
+        self.turnaround_time = 0          # Wait time + run time.
+        self.response_ratio = 0           # Turnaround time / run time ratio.
         self.num_processors = num_processors
         self.status = JobStatus.WAITING
 
@@ -71,8 +73,6 @@ class Job(object):
         for event in self.events:
             event.output()
         print("Wait time for job", self.job_id, ":", self.real_wait_time)
-        print("Waiting/running time ratio:",
-              self.real_wait_time / self.real_run_time if self.real_run_time else "not available")
         return
     #   End output
 #   End Job
@@ -92,8 +92,14 @@ class JobList(object):
 
     def pop(self, job):
         if not self.jobs:
+            print("Job list pop error: "
+                  "Popping from an empty list. "
+                  "Terminating.")
             raise JobListEmptyPopError
         if job not in self.jobs:
+            print("Job list pop error: "
+                  "Popping job not found. "
+                  "Terminating.")
             raise JobListIllegalPopError
         self.jobs.remove(job)
         return
@@ -236,6 +242,10 @@ class JobEventRequeue(JobEvent):
 
 
 class JobError(Exception):
+    pass
+
+
+class JobInputError(JobError):
     pass
 
 

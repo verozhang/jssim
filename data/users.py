@@ -48,8 +48,14 @@ class UserList(object):
 
     def pop(self, user):
         if not self.users:
+            print("User list pop error: "
+                  "Popping from an empty list. "
+                  "Terminating.")
             raise UserListEmptyPopError
         if user not in self.users:
+            print("User list pop error: "
+                  "Popping user not found."
+                  "Terminating.")
             raise UserListIllegalPopError
         self.users.remove(user)
         return

@@ -12,10 +12,20 @@ def init_job(file_name):
     for line in in_file.readlines():
         line = line.split()
 
+        try:
+            test = (line[0] and line[1] and line[2] and line[3] and line[4] and line[5] and line[6])
+        except IndexError:
+            print("Job input error: "
+                  "Wrong input in file. "
+                  "Terminating.")
+            raise JobInputError
+
         job_id = int(line[0])
         for job in gl.jobs_all.jobs:
             if job.job_id == job_id:
-                print(job_id)
+                print("Job input error: "
+                      "Duplicate job ID for job", job_id,
+                      "Terminating.")
                 raise JobDuplicateIDError
 
         user_id = int(line[1])
@@ -84,11 +94,11 @@ def init_queue():
         #   Only 1 queue. All jobs will be pushed to this queue.
         #   All resources will be used only by this queue.
         if queue_mode == '1':
-            queue_name = "Queue_Pending1"
+            queue_name = "Queue_Pending"
             queue = PendQueue(queue_name)
             queue.set_core_num(1, gl.total_core_num)
-            gl.queues_pending.append(queue)
             queue.resource_pools.resource_list_append(gl.resource_all)
+            gl.queues_pending.append(queue)
             break
 
         #   Semi-auto mode:
@@ -98,17 +108,17 @@ def init_queue():
         elif queue_mode == '2':
             current_min_core_num = 1
             while True:
-                queue_num = int(input("Please input queue number."))
-                if queue_num > 1:
+                gl.queue_num = int(input("Please input queue number."))
+                if gl.queue_num > 1:
                     break
                 else:
                     print("Queue num must be more than 1, please retry.")
 
-            for i in range(queue_num):
+            for i in range(gl.queue_num):
                 queue_name = "Queue_Pending" + str(i + 1)
                 queue = PendQueue(queue_name)
 
-                if i != queue_num - 1:
+                if i != gl.queue_num - 1:
                     #   Not the last queue, max core num input by user.
                     current_max_core_num = int(input("Please input maximum core num for queue " + queue_name))
                 else:
@@ -116,7 +126,7 @@ def init_queue():
                     current_max_core_num = gl.total_core_num
                 queue.set_core_num(current_min_core_num, current_max_core_num)
 
-                queue.set_priority(queue_num - i)
+                queue.set_priority(i + 1)
                 gl.queues_pending.append(queue)
                 queue.resource_pools.resource_list_append(gl.resource_all)
                 current_min_core_num = current_max_core_num + 1
@@ -125,13 +135,13 @@ def init_queue():
 
         elif queue_mode == '3':
             while True:
-                queue_num = int(input("Please input queue number."))
-                if queue_num > 1:
+                gl.queue_num = int(input("Please input queue number."))
+                if gl.queue_num > 1:
                     break
                 else:
                     print("Queue num must be more than 1, please retry.")
 
-            for i in range(queue_num):
+            for i in range(gl.queue_num):
                 queue_name = "Queue_Pending" + str(i + 1)
                 queue = PendQueue(queue_name)
 

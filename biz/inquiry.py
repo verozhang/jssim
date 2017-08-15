@@ -28,40 +28,58 @@ def inquiry():
         elif command == 's' or command == 'S':
             print("System node number:", gl.total_node_num)
             print("Core number of each node:", gl.each_core_num)
+            print("System total node number:", gl.total_core_num)
 
         elif command == 'q' or command == 'Q':
             print("Queue number:", gl.queue_num)
             for queue in gl.queues_pending:
                 print("Queue name:", queue.name)
                 print("Priority:", queue.priority)
-                print("Available core num:", queue.min_core_num, "to", queue.max_core_num)
+                print("Available core num:", queue.core_num_floor, "to", queue.core_num_ceiling)
                 print("Total job number:", queue.total_job_num)
                 print("Total core number:", queue.total_core_num)
+                print("Total wait time:", queue.total_wait_time)
+                print("Average wait time:", queue.total_wait_time / queue.total_job_num)
+                print("Total run time:", queue.total_run_time)
+                print("Average run time:", queue.total_run_time / queue.total_job_num)
+                print("Total CPU time:", queue.total_cpu_time)
+                print("Average CPU time:", queue.total_cpu_time / queue.total_job_num)
+                print("Average response ratio:", (queue.total_wait_time + queue.total_run_time) / queue.total_run_time)
+                print("Max wait time:", queue.max_wait_time)
+                print("Max run time:", queue.max_run_time)
+                print("Max CPU time:", queue.max_cpu_time)
+                print("Max response ratio:", queue.max_response_ratio)
 
         # Print running status: time and job count.
         elif command == 'r' or command == 'R':
             print("Start time:", gl.start_time)
             print("Finish time:", gl.finish_time)
             print("Finished jobs:", gl.queue_finished.get_length())
-            print("Running jobs:", gl.queue_running.get_length())
+            # print("Running jobs:", gl.queue_running.get_length())
             print("Abandoned jobs:", gl.queue_abandoned.get_length())
 
         elif command == 'e' or command == 'E':
-            # CPU time
-            sum_cpu_time = 0
-            for job in gl.queue_finished.job_list.jobs:
-                sum_cpu_time += job.real_run_time * job.num_processors
-            avg_cpu_time = sum_cpu_time / gl.queue_finished.get_length()
-            print("Total cpu time:", sum_cpu_time)
+            # Times
+            avg_run_time = gl.sum_run_time / gl.queue_finished.get_length()
+            avg_wait_time = gl.sum_wait_time / gl.queue_finished.get_length()
+            avg_cpu_time = gl.sum_cpu_time / gl.queue_finished.get_length()
+
+            print("Total wait time:", gl.sum_wait_time)
+            print("Average wait time:", avg_wait_time)
+            print("Total run time:", gl.sum_run_time)
+            print("Average run time:", avg_run_time)
+            print("Total turnaround time:", gl.sum_wait_time + gl.sum_run_time)
+            print("Average turnaround time:", avg_wait_time + avg_run_time)
+
+            print("Average response ratio:", (gl.sum_wait_time + gl.sum_run_time) / gl.sum_run_time )
+
+            print("Total cpu time:", gl.sum_cpu_time)
             print("Average cpu time per job:", avg_cpu_time)
 
-            # Wait time
-            sum_wait_time = 0
-            for job in gl.queue_finished.job_list.jobs:
-                sum_wait_time += job.real_wait_time
-            avg_wait_time = sum_wait_time / gl.queue_finished.get_length()
-            print("Total wait time:", sum_wait_time)
-            print("Average wait time:", avg_wait_time)
+            print("Max wait time:", gl.max_wait_time)
+            print("Max run time:", gl.max_run_time)
+            print("Max CPU time:", gl.max_cpu_time)
+            print("Max response ratio:", gl.max_response_ratio)
 
             # Occupation rate
             is_output = input("Export occupation rate status?\n")
@@ -70,14 +88,25 @@ def inquiry():
                 if interval <= 0:
                     interval = int(input("Wrong input, please try again."))
                 print("Exporting, please wait.\n")
-                out_file = open('output', 'w')
+
+                out_file = open('output_status', 'w')
                 for item in gl.cpu_occupation_status:
                     if item % interval == 0:
                         out_file.write(str(item))
-                        out_file.write(':')
+                        out_file.write(' ')
                         out_file.write(str(gl.cpu_occupation_status[item]))
                         out_file.write('\n')
                 out_file.close()
+
+                out_file = open('output_rate', 'w')
+                for item in gl.cpu_occupation_rate:
+                    if item % interval == 0:
+                        out_file.write(str(item))
+                        out_file.write(' ')
+                        out_file.write(str(gl.cpu_occupation_rate[item]))
+                        out_file.write('\n')
+                out_file.close()
+
                 print("Export successful.\n")
 
         # Print job status.

@@ -157,8 +157,10 @@ def handle_abandon(job, time):
     gl.queue_abandoned.load(job)
     job.queue_from.unload(job)
 
-    event = JobEventAbandon(job, job.queue_from, time)
-    job.events.append(event)
+    job_event = JobEventAbandon(job, job.queue_from, time)
+    job.events.append(job_event)
+    queue_event = QueueEventUnload(job.queue_from, job, time)
+    job.queue_from.events.append(queue_event)
     return
 #   End handle_abandon
 
@@ -186,6 +188,13 @@ def run(job, time, resource):
     job.resource_pool_usage = resource
     job.real_start_time = time
     job.real_wait_time = time - job.start_time
+
+    gl.sum_wait_time += job.real_wait_time
+    gl.max_wait_time = max(gl.max_wait_time, job.real_wait_time)
+
+    job.queue_from.total_wait_time += job.real_wait_time
+    job.queue_from.max_wait_time = max(job.queue_from.max_wait_time, job.real_wait_time)
+
     job.status = JobStatus.RUNNING
     return
 #   End run
@@ -196,13 +205,29 @@ def stop(job, time):
         raise JobIllegalStopError
 
     for node in job.node_usage:
+        node.cputime_sum += node.status[job] * job.run_time
         node.release(job)
-        node.cputime_sum += job.num_processors * job.run_time
 
     job.resource_pool_usage.release(job)
 
     job.real_end_time = time
     job.real_run_time = time - job.real_start_time
+    job.turnaround_time = job.real_run_time + job.real_wait_time
+    job.response_ratio = job.turnaround_time / job.real_run_time
+
+    gl.sum_run_time += job.real_run_time
+    gl.sum_cpu_time += job.real_run_time * job.num_processors
+
+    gl.max_run_time = max(gl.max_run_time, job.real_run_time)
+    gl.max_cpu_time = max(gl.max_cpu_time, (job.real_run_time * job.num_processors))
+    gl.max_response_ratio = max(gl.max_response_ratio, job.response_ratio)
+
+    job.queue_from.total_run_time += job.real_run_time
+    job.queue_from.total_cpu_time += job.real_run_time * job.num_processors
+    job.queue_from.max_run_time = max(job.queue_from.max_run_time, job.real_run_time)
+    job.queue_from.max_cpu_time = max(job.queue_from.max_cpu_time, (job.real_run_time * job.num_processors))
+    job.queue_from.max_response_ratio = max(job.queue_from.max_response_ratio, job.response_ratio)
+
     job.status = JobStatus.FINISHED
     return
 #   End stop
@@ -219,5 +244,14 @@ def requeue(job, time_diff):
 
 
 def stat():
-    gl.cpu_occupation_status[gl.current_time] = gl.resource_all.cores_available
-    gl.cpu_occupation_rate[gl.current_time] = gl.resource_all.cores_available / gl.resource_all.cores_all
+    gl.cpu_occupation_status[gl.current_time] = gl.resource_all.cores_all - gl.resource_all.cores_available
+    gl.cpu_occupation_rate[gl.current_time] = (gl.resource_all.cores_all - gl.resource_all.cores_available) \
+                                              / gl.resource_all.cores_all
+    total_waiting_job_num = 0
+    total_waiting_core_num = 0
+    for queue in gl.queues_pending:
+        for job in queue:
+            total_waiting_job_num += 1
+            total_waiting_core_num += job.num_processors
+    gl.total_waiting_job_num[gl.current_time] = total_waiting_job_num
+    gl.total_waiting_core_num[gl.current_time] = total_waiting_core_num

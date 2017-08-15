@@ -54,7 +54,10 @@ class ResourcePool(object):
 
     def node_list_append(self, node):
         if node in self.node_list:
-            raise Exception
+            print("Node list append error: "
+                  "Node already in pool. "
+                  "Terminating.")
+            raise ResourceError
         else:
             self.node_list.append(node)
             self.cores_all += node.core_num
@@ -63,9 +66,15 @@ class ResourcePool(object):
 
     def node_list_remove(self, node):
         if not self.node_list:
-            raise Exception
+            print("Node list remove error: "
+                  "Removing from an empty list. "
+                  "Terminating.")
+            raise ResourceError
         elif node not in self.node_list:
-            raise Exception
+            print("Node list remove error: "
+                  "Removing node not found. "
+                  "Terminating.")
+            raise ResourceError
         else:
             self.node_list.remove(node)
             self.cores_all -= node.core_num
@@ -109,7 +118,10 @@ class ResourceGroup(object):
 
     def resource_list_append(self, resource):
         if resource in self.resource_list:
-            raise Exception
+            print("Resource list append error: "
+                  "Resource already in list. "
+                  "Terminating.")
+            raise ResourceError
         else:
             self.resource_list.append(resource)
             self.cores_all += resource.cores_all
@@ -119,7 +131,10 @@ class ResourceGroup(object):
 
     def resource_list_remove(self, resource):
         if resource not in self.resource_list:
-            raise Exception
+            print("Resource list remove error: "
+                  "Removing resource not found. "
+                  "Terminating.")
+            raise ResourceError
         else:
             self.resource_list.remove(resource)
             self.cores_all -= resource.cores_all
@@ -175,3 +190,7 @@ class ResourceEventRelease(ResourceEvent):
         return
     #   End output
 #   End ResourceEventRelease
+
+
+class ResourceError(Exception):
+    pass

@@ -32,6 +32,14 @@ resource_all = ResourcePool()
 cpu_occupation_status = {}  # Record occupation status on each time point.
 cpu_occupation_rate = {}
 
-sum_cpu_time = 0
+total_waiting_job_num = {}
+total_waiting_core_num = {}
+
 sum_wait_time = 0
 sum_run_time = 0
+sum_cpu_time = 0
+
+max_wait_time = 0
+max_run_time = 0
+max_cpu_time = 0
+max_response_ratio = 0
