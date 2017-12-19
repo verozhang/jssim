@@ -5,9 +5,10 @@ from data.resourcepool import *
 import gl
 
 
-def init_job(file_name):
+def init_job():
     #   Read from file.
-    in_file = open(file_name, 'r')
+    in_file_name = input("Please input name of input file.\n")
+    in_file = open(in_file_name, 'r')
     #   Read each line.
     for line in in_file.readlines():
         line = line.split()
@@ -63,8 +64,8 @@ def init_job(file_name):
 
 def init_resource():
     #   Init cores.
-    node_num = int(input("Please input node number."))
-    core_num = int(input("Please input core number."))
+    node_num = int(input("Please input node number.\n"))
+    core_num = int(input("Please input core number.\n"))
 
     gl.total_node_num = node_num
     gl.each_core_num = core_num

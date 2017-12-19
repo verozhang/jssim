@@ -3,7 +3,7 @@ from data.users import UserList
 from data.queues import Queue
 from data.resourcepool import *
 
-VERSION = "1.2"
+VERSION = "1.3"
 
 total_node_num = 1
 each_core_num = 1

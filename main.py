@@ -8,47 +8,10 @@ from biz.inquiry import *
 if __name__ == '__main__':
 
     print("Thank you for using JSSim Ver.", gl.VERSION)
-
-    job_flag = False
-    resource_flag = False
-    queue_flag = False
-
-    while True:
-        command = input("Please input command.\n"
-                        "Press J to import job properties from file.\n"
-                        "Press R to initialise resources.\n"
-                        "Press Q to initialise queues.\n"
-                        "Press C to check current system settings.\n"
-                        "Press B to break initialisation and start running.\n")
-
-        if command == 'J' or command == 'j':
-            init_job("input")
-            job_flag = True
-
-        elif command == 'R' or command == 'r':
-            init_resource()
-            resource_flag = True
-
-        elif command == 'Q' or command == 'q':
-            init_queue()
-            queue_flag = True
-
-        elif command == 'C' or command == 'c':
-            if resource_flag and queue_flag:
-                #   Queue settings check module.#
-                print("This is queue settings.")
-            else:
-                print("System initialisation needed before checking. "
-                      "Please Try again.")
-
-        elif command == 'B' or command == 'b':
-            if job_flag and resource_flag and queue_flag:
-                break
-            else:
-                print("Error occurred. Please check input before starting.")
-
-        else:
-            print("This command does not exist or is under development, please retry.")
+    print("Initializing simulation.")
+    init_job()
+    init_resource()
+    init_queue()
 
     simulate()
     inquiry()
