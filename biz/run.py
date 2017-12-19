@@ -250,7 +250,7 @@ def stat():
     total_waiting_job_num = 0
     total_waiting_core_num = 0
     for queue in gl.queues_pending:
-        for job in queue:
+        for job in queue.job_list.jobs:
             total_waiting_job_num += 1
             total_waiting_core_num += job.num_processors
     gl.total_waiting_job_num[gl.current_time] = total_waiting_job_num

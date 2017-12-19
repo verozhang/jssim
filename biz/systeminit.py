@@ -65,6 +65,7 @@ def init_resource():
     #   Init cores.
     node_num = int(input("Please input node number."))
     core_num = int(input("Please input core number."))
+
     gl.total_node_num = node_num
     gl.each_core_num = core_num
     gl.total_core_num = core_num * node_num
