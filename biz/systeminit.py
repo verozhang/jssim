@@ -22,7 +22,7 @@ def init_job():
             raise JobInputError
 
         job_id = int(line[0])
-        for job in gl.jobs_all.jobs:
+        for job in gl.jobs_all:
             if job.job_id == job_id:
                 print("Job input error: "
                       "Duplicate job ID for job", job_id,
@@ -47,14 +47,14 @@ def init_job():
         run_time = int(line[5])
         num_processors = int(line[6])
         job = Job(job_id, current_user, submit_time, start_time, stop_time, run_time, num_processors)
-        gl.jobs_all.push(job)
-        current_user.job_list.push(job)
+        gl.jobs_all.append(job)
+        current_user.job_list.append(job)
 
     in_file.close()
 
     #   Push all jobs into queue_waiting.
-    for job in gl.jobs_all.jobs:
-        gl.queue_waiting.job_list.push(job)
+    for job in gl.jobs_all:
+        gl.queue_waiting.job_list.append(job)
     gl.queue_waiting.sort_by_submit_time()
 
     print("Job properties successfully imported from file.")
@@ -129,6 +129,11 @@ def init_queue():
                 queue.set_core_num(current_min_core_num, current_max_core_num)
 
                 queue.set_priority(i + 1)
+
+                queue.core_num_running_limit = int(input("Please input maximum core num for queue "
+                                                         + queue_name
+                                                         + "to use running.\n"))
+
                 gl.queues_pending.append(queue)
                 queue.resource_pools.resource_list_append(gl.resource_all)
                 current_min_core_num = current_max_core_num + 1

@@ -30,8 +30,8 @@ def simulate():
                     if queue.try_pending_limit(gl.queue_arrived.get_head()) and \
                             queue.try_user_pending_limit(gl.queue_arrived.get_head()):
                         handle_pend(gl.queue_arrived.get_head(), queue, gl.current_time)
-                    else:
-                        requeue(gl.queue_arrived.get_head(), 60)
+                    # else:
+                    #    requeue(gl.queue_arrived.get_head(), 60)
                     break
 
                 else:
@@ -57,8 +57,9 @@ def simulate():
                                 break
                         else:
                             break
-                    else:
-                        requeue(queue.get_head, 60)
+                    break
+                    # else:
+                    #   requeue(queue.get_head(), 60)
 
         stat()
 
@@ -250,7 +251,7 @@ def stat():
     total_waiting_job_num = 0
     total_waiting_core_num = 0
     for queue in gl.queues_pending:
-        for job in queue.job_list.jobs:
+        for job in queue.job_list:
             total_waiting_job_num += 1
             total_waiting_core_num += job.num_processors
     gl.total_waiting_job_num[gl.current_time] = total_waiting_job_num

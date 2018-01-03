@@ -12,44 +12,44 @@ class Queue(object):
     #   End __init__
 
     def sort_by_submit_time(self):
-        self.job_list.jobs.sort(key=lambda x: x.submit_time, reverse=False)
+        self.job_list.sort(key=lambda x: x.submit_time, reverse=False)
         return
     #   End sort_by_submit_time
 
     def sort_by_start_time(self):
-        self.job_list.jobs.sort(key=lambda x: x.start_time, reverse=False)
+        self.job_list.sort(key=lambda x: x.start_time, reverse=False)
         return
     #   End sort_by_start_time
 
     def sort_by_finish_time(self):
-        self.job_list.jobs.sort(key=lambda x: x.real_start_time + x.run_time, reverse=False)
+        self.job_list.sort(key=lambda x: x.real_start_time + x.run_time, reverse=False)
         return
     #   End sort_by_finish_time
 
     def load(self, job):
-        self.job_list.push(job)
+        self.job_list.append(job)
         return
     #   End load
 
     def unload(self, job):
-        self.job_list.pop(job)
+        self.job_list.remove(job)
         return
     #   End unload
 
     def try_has_job(self):
-        return bool(self.job_list.jobs)
+        return bool(self.job_list)
     #   End try_has_job
 
     def get_length(self):
-        return self.job_list.get_length()
+        return self.job_list.__len__()
     #   End get_length
 
     def get_core_length(self):
-        return self.job_list.get_core_length()
+        return self.job_list.core_length()
     #   End get_core_length
 
     def get_head(self):
-        return self.job_list.get_head()
+        return self.job_list[0]
     #   End get_head
 #   End Queue
 

@@ -78,46 +78,26 @@ class Job(object):
 #   End Job
 
 
-class JobList(object):
+class JobList(list):
 
     def __init__(self):
-        self.jobs = []
+        super().__init__()
+        self.core_length = 0
         return
     #   End __init__
 
-    def push(self, job):
-        self.jobs.append(job)
+    def append(self, job):
+        super().append(job)
+        self.core_length += job.num_processors
         return
-    #   End push
+    #   End append
 
-    def pop(self, job):
-        if not self.jobs:
-            print("Job list pop error: "
-                  "Popping from an empty list. "
-                  "Terminating.")
-            raise JobListEmptyPopError
-        if job not in self.jobs:
-            print("Job list pop error: "
-                  "Popping job not found. "
-                  "Terminating.")
-            raise JobListIllegalPopError
-        self.jobs.remove(job)
+    def remove(self, job):
+        super().remove(job)
+        self.core_length -= job.num_processors
         return
-    #   End pop
+    #   End remove
 
-    def get_length(self):
-        return len(self.jobs)
-    #   End get_length
-
-    def get_core_length(self):
-        sum = 0
-        for job in self.jobs:
-            sum += job.num_processors
-        return sum
-
-    def get_head(self):
-        return self.jobs[0]
-    #   End get_head
 #   End JobList
 
 

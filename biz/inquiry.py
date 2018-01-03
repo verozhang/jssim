@@ -3,7 +3,7 @@ import gl
 
 def inquiry():
 
-    for job in gl.jobs_all.jobs:
+    for job in gl.jobs_all:
         for event in job.events:
             event.output()
 
