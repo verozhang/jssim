@@ -44,31 +44,9 @@ class Core(object):
 #   End Core
 
 
-class CoreList(object):
+class CoreList(list):
 
-    def __init__(self):
-        self.cores = []
-        return
-    #   End __init__
-
-    def push(self, core):
-        self.cores.append(core)
-        return
-    #   End push
-
-    def pop(self, core):
-        #   Popping from a empty core is illegal.
-        if not self.cores:
-            raise CoreListEmptyPopError
-        if core not in self.cores:
-            raise CoreListIllegalPopError
-        self.cores.remove(core)
-        return
-    #   End pop
-
-    def get_head(self):
-        return self.cores[0]
-    #   End get_head
+    pass
 #   End CoreList
 
 
