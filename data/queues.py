@@ -58,13 +58,16 @@ class PendQueue(Queue):
 
     def __init__(self, name):
         super().__init__(name)
+        self.priority = 0
+        self.resource_pools = ResourceGroup()
+
+        # Conditions for job entering this queue.
         self.core_num_floor = 0
         self.core_num_ceiling = float("inf")
         self.run_time_floor = 0
         self.run_time_ceiling = float("inf")
-        self.priority = 0
-        self.resource_pools = ResourceGroup()
 
+        # Stats of pending jobs on this queue.
         self.job_num_pending = 0                    # Num of jobs pending through this queue.
         self.job_num_pending_limit = float("inf")     # Num of jobs a queue can have pending.
         self.core_num_pending = 0                   # Num of cores asking for.
@@ -75,6 +78,7 @@ class PendQueue(Queue):
         self.user_core_num_pending = {}
         self.user_core_num_pending_limit = float("inf")
 
+        # Stats of running jobs from this queue.
         self.job_num_running = 0                    # Num of jobs running through this queue.
         self.job_num_running_limit = float("inf")
         self.core_num_running = 0
@@ -89,6 +93,7 @@ class PendQueue(Queue):
         self.user_cputime_running = {}
         self.user_cputime_running_limit = float("inf")
 
+        # Stats of queue
         self.total_job_num = 0
         self.total_core_num = 0
         self.total_wait_time = 0
@@ -185,7 +190,7 @@ class PendQueue(Queue):
 
     def try_running_limit(self, job):
         if self.job_num_running + 1 <= self.job_num_running_limit:
-            if self.core_num_pending + job.num_processors <= self.core_num_running_limit:
+            if self.core_num_running + job.num_processors <= self.core_num_running_limit:
                 return True
             else:
                 return False

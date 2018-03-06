@@ -112,7 +112,7 @@ def inquiry():
         # Print job status.
         elif command == 'j' or command == 'J':
             job_ask = input("Please input job ID.\n")
-            for job in gl.jobs_all.jobs:
+            for job in gl.jobs_all:
                 if job_ask == str(job.job_id):
                     job.output()
                     break
@@ -133,9 +133,9 @@ def inquiry():
         elif command == 'a' or command == 'A':
             print("Job Scheduling Simulator for Super-Computers, Ver.", gl.VERSION)
             print("Author: Yi-Chi \"Vero\" Zhang@SCC-USTC.")
-            print("Mail: vero at mail dot ustc dot edu dot cn")
-            print("Supervisor: Dr. Yu Shen@SCC-USTC.")
-            print("Mail: shenyu at ustc dot edu dot cn")
+            print("Mail: vero@mail.ustc.edu.cn")
+            print("Supervisor: Dr. Yu Shen@SCC-USTC")
+            print("Mail: shenyu@ustc.edu.cn")
 
         # Quit program.
         elif command == 'x' or command == 'X':

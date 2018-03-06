@@ -132,7 +132,7 @@ def init_queue():
 
                 queue.core_num_running_limit = int(input("Please input maximum core num for queue "
                                                          + queue_name
-                                                         + "to use running.\n"))
+                                                         + " to use running.\n"))
 
                 gl.queues_pending.append(queue)
                 queue.resource_pools.resource_list_append(gl.resource_all)
@@ -146,7 +146,7 @@ def init_queue():
                 if gl.queue_num > 1:
                     break
                 else:
-                    print("Queue num must be more than 1, please retry.")
+                    print("Queue num must be more than 1, please retry.\n")
 
             for i in range(gl.queue_num):
                 queue_name = "Queue_Pending" + str(i + 1)

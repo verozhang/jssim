@@ -10,3 +10,6 @@ Added several new functions.
 
 Ver. 1.2:
 New resource module, several minor improvements.
+
+Ver. 1.3:
+New fixture: queue-specific resource control.

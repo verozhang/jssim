@@ -3,18 +3,16 @@ from data.queues import *
 from data.jobs import *
 
 
-def try_pend():
+def try_continue_running():
     flag = False
     for queue in gl.queues_pending:
         flag = flag or queue.try_has_job()
+    flag = flag or gl.queue_waiting.try_has_job() or gl.queue_arrived.try_has_job() or gl.queue_running.try_has_job()
     return flag
 
 
 def simulate():
-    while (gl.queue_waiting.try_has_job() or
-           gl.queue_arrived.try_has_job() or
-           gl.queue_running.try_has_job() or
-           try_pend()):
+    while try_continue_running():
         gl.current_time += 1
         #   Handle finish
         while (gl.queue_running.try_has_job() and
@@ -28,7 +26,6 @@ def simulate():
             gl.queue_arrived.sort_by_start_time()
 
         #   Handle pend
-
         while (gl.queue_arrived.try_has_job() and
                gl.queue_arrived.get_head().try_run(gl.current_time)):
             #   Sort queues in priority order.
