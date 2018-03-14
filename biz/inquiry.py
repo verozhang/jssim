@@ -1,3 +1,4 @@
+from matplotlib.pyplot import plot, show
 import gl
 
 
@@ -84,17 +85,24 @@ def inquiry():
             # Occupation rate
             is_output = input("Export occupation rate status?\n")
             if is_output == 'y' or is_output == 'Y':
+
                 interval = int(input("Please input sampling interval."))
                 if interval <= 0:
                     interval = int(input("Wrong input, please try again."))
                 print("Exporting, please wait.\n")
 
+                time_list = []
+                stat_list = []
+                rate_list = []
+
                 out_file = open('output_status', 'w')
                 for item in gl.cpu_occupation_status:
                     if item % interval == 0:
                         out_file.write(str(item))
+                        time_list.append(str(item))
                         out_file.write(' ')
                         out_file.write(str(gl.cpu_occupation_status[item]))
+                        stat_list.append(gl.cpu_occupation_status[item])
                         out_file.write('\n')
                 out_file.close()
 
@@ -104,8 +112,12 @@ def inquiry():
                         out_file.write(str(item))
                         out_file.write(' ')
                         out_file.write(str(gl.cpu_occupation_rate[item]))
+                        rate_list.append(gl.cpu_occupation_rate[item])
                         out_file.write('\n')
                 out_file.close()
+
+                plot(time_list, stat_list)
+                show()
 
                 print("Export successful.\n")
 

@@ -66,7 +66,7 @@ def simulate():
                     # else:
                     #   requeue(queue.get_head(), 60)
 
-        #stat()
+        stat()
 
     gl.finish_time = gl.current_time
     print("Finish time:", gl.finish_time)
@@ -250,9 +250,9 @@ def requeue(job, time_diff):
 
 
 def stat():
-    #gl.cpu_occupation_status[gl.current_time] = gl.resource_all.cores_all - gl.resource_all.cores_available
-    #gl.cpu_occupation_rate[gl.current_time] = (gl.resource_all.cores_all - gl.resource_all.cores_available) \
-                                              #/ gl.resource_all.cores_all
+    gl.cpu_occupation_status[gl.current_time] = gl.resource_all.cores_all - gl.resource_all.cores_available
+    gl.cpu_occupation_rate[gl.current_time] = (gl.resource_all.cores_all - gl.resource_all.cores_available) \
+                                              / gl.resource_all.cores_all
     total_waiting_job_num = 0
     total_waiting_core_num = 0
     for queue in gl.queues_pending:

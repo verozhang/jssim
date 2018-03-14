@@ -7,14 +7,22 @@ import gl
 
 def init_job():
     #   Read from file.
-    in_file_name = input("Please input name of input file.\n")
-    in_file = open(in_file_name, 'r')
+    while True:
+        try:
+            in_file_name = input("Please input name of input file.\n")
+            in_file = open(in_file_name, 'r')
+        except FileNotFoundError:
+            print("File not found. "
+                  "Please try again.\n")
+        else:
+            break
+
     #   Read each line.
     for line in in_file.readlines():
         line = line.split()
 
         try:
-            test = (line[0] and line[1] and line[2] and line[3] and line[4] and line[5] and line[6])
+            line[0] and line[1] and line[2] and line[3] and line[4] and line[5] and line[6]
         except IndexError:
             print("Job input error: "
                   "Wrong input in file. "
@@ -64,8 +72,15 @@ def init_job():
 
 def init_resource():
     #   Init cores.
-    node_num = int(input("Please input node number.\n"))
-    core_num = int(input("Please input core number.\n"))
+    while True:
+        try:
+            node_num = int(input("Please input node number.\n"))
+            core_num = int(input("Please input core number.\n"))
+        except ValueError:
+            print("Node num & core num must be positive integer.\n"
+                  "Please try again.\n")
+        else:
+            break
 
     gl.total_node_num = node_num
     gl.each_core_num = core_num

@@ -6,7 +6,6 @@ from biz.run import *
 from biz.inquiry import *
 
 if __name__ == '__main__':
-
     print("Thank you for using JSSim Ver.", gl.VERSION)
     print("Initializing simulation.")
     init_job()
