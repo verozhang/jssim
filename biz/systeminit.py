@@ -1,3 +1,4 @@
+import json
 from data.queues import *
 from data.jobs import *
 from data.users import *
@@ -6,7 +7,7 @@ import gl
 
 
 def init_job():
-    #   Read from file.
+    # Read from file.
     while True:
         try:
             in_file_name = input("Please input name of input file.\n")
@@ -17,7 +18,7 @@ def init_job():
         else:
             break
 
-    #   Read each line.
+    # Read each line.
     for line in in_file.readlines():
         line = line.split()
 
@@ -38,9 +39,9 @@ def init_job():
                 raise JobDuplicateIDError
 
         user_id = int(line[1])
-        #   Search for user.
+        # Search for user.
         for user in gl.users_all.users:
-            #   Found user.
+            # Found user.
             if user.user_id == user_id:
                 current_user = user
                 break
@@ -60,18 +61,36 @@ def init_job():
 
     in_file.close()
 
-    #   Push all jobs into queue_waiting.
+    # Push all jobs into queue_waiting.
     for job in gl.jobs_all:
         gl.queue_waiting.job_list.append(job)
     gl.queue_waiting.sort_by_submit_time()
 
     print("Job properties successfully imported from file.")
     return
-#   End init_job
+# End init_job
+
+
+def init_job_from_json():
+    # Read from a json. Further work needed here.
+    # See lsb.acct-Handler.
+    while True:
+        try:
+            in_json_name = input("Please input name of json file.\n")
+            in_json = json.load(in_json_name)
+        except FileNotFoundError:
+            print("File not found. "
+                  "Please try again.\n")
+        else:
+            break
+
+    for item in in_json:
+        pass
+    return
 
 
 def init_resource():
-    #   Init cores.
+    # Init cores.
     while True:
         try:
             node_num = int(input("Please input node number.\n"))
@@ -81,7 +100,7 @@ def init_resource():
                   "Please try again.\n")
         else:
             break
-
+    
     gl.total_node_num = node_num
     gl.each_core_num = core_num
     gl.total_core_num = core_num * node_num
@@ -93,11 +112,11 @@ def init_resource():
     gl.resource_all.count_cores()
 
     return
-#   End init_resource
+# End init_resource
 
 
 def init_queue():
-    #   Init pend queues.
+    # Init pend queues.
     while True:
         queue_mode = input("Please select queue mode.\n"
                            "1 for single-queue mode,\n"
@@ -107,9 +126,9 @@ def init_queue():
             print("Input error, please retry.")
             break
 
-        #   Single queue mode:
-        #   Only 1 queue. All jobs will be pushed to this queue.
-        #   All resources will be used only by this queue.
+        # Single queue mode:
+        # Only 1 queue. All jobs will be pushed to this queue.
+        # All resources will be used only by this queue.
         if queue_mode == '1':
             queue_name = "Queue_Pending"
             queue = PendQueue(queue_name)
@@ -118,10 +137,10 @@ def init_queue():
             gl.queues_pending.append(queue)
             break
 
-        #   Semi-auto mode:
-        #   Set interval points of core numbers.
-        #   All jobs will be sent to queues according to cores needed.
-        #   Higher priority for queues of larger jobs.
+        # Semi-auto mode:
+        # Set interval points of core numbers.
+        # All jobs will be sent to queues according to cores needed.
+        # Higher priority for queues of larger jobs.
         elif queue_mode == '2':
             current_min_core_num = 1
             while True:
@@ -136,10 +155,10 @@ def init_queue():
                 queue = PendQueue(queue_name)
 
                 if i != gl.queue_num - 1:
-                    #   Not the last queue, max core num input by user.
+                    # Not the last queue, max core num input by user.
                     current_max_core_num = int(input("Please input maximum core num for queue " + queue_name))
                 else:
-                    #   Last queue, max core num is total core num.
+                    # Last queue, max core num is total core num.
                     current_max_core_num = gl.total_core_num
                 queue.set_core_num(current_min_core_num, current_max_core_num)
 
@@ -175,4 +194,4 @@ def init_queue():
                 queue.resource_pools.resource_list_append(gl.resource_all)
             break
     return
-#   End init_queue
+# End init_queue
